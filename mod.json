@@ -1,0 +1,17 @@
+{
+	"geode": "4.10.0",
+	"gd": {
+		"win": "2.2074",
+		"android": "2.2074",
+		"mac": "2.2074",
+		"ios": "2.2074"
+	},
+	"id": "sputnik-dev-team.gd-archipelago",
+	"name": "GD-Archipelago",
+	"version": "v0.0.1",
+	"developer": "Sputnik Dev Team",
+	"description": "archipelagogogogo",
+	"dependencies": {
+		"geode.node-ids": ">=v1.20.0"
+	}
+}
