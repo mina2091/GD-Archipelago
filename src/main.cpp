@@ -2,6 +2,7 @@
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/modify/CreatorLayer.hpp>
 #include <Geode/ui/LazySprite.hpp>
+#include "Layer/APLayer.hpp"
 
 using namespace geode::prelude;
 
@@ -28,7 +29,7 @@ class $modify(menu, CreatorLayer) {
 	}
 
 	void onButtonClick(CCObject * btn) {
-		FLAlertLayer::create("GD Archipelago Online", "pe", "lago")->show();
+		APLayer::create()->show();
 	}
 
 };
