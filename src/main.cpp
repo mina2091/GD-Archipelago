@@ -1,7 +1,8 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/modify/CreatorLayer.hpp>
-#include <Geode/ui/LazySprite.hpp>
+#include <Geode/ui/TextInput.hpp>
+#include <Geode/binding/CCTextInputNode.hpp>
 
 using namespace geode::prelude;
 
@@ -25,12 +26,29 @@ class $modify(menu, CreatorLayer) {
 
 		apButton->ignoreAnchorPointForPosition(true);
 
-
 		return true;
+
+		
+
 	}
 
 	void onButtonClick(CCObject* btn) {
-		FLAlertLayer::create("GD Archipelago Online", "pe", "lago")->show();
+		geode::createQuickPopup(
+			"Title",            // title
+			"auto apButton",   // content
+			"connect", "cancel",      // buttons
+			[](auto, bool btn2) {
+				if (!btn2) {
+					FLAlertLayer::create("gdoa", "connected", "ok")->show();
+				}
+				else {
+					FLAlertLayer::create("gdoa", "cancelled", "ok")->show();
+				}
+			}
+		);
 	}
+
+	
+
 
 };

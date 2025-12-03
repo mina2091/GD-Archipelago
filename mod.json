@@ -10,7 +10,7 @@
 	"name": "GD-Archipelago",
 	"version": "v0.0.1",
 	"developer": "Sputnik Dev Team",
-	"description": "archipelagogogogo",
+	"description": "Archipelago Mod for Geometry Dash Online Levels",   
 	"resources": {
 		"sprites":[
 			"src/img/*.png",
