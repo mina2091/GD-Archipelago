@@ -10,15 +10,19 @@ class $modify(menu, CreatorLayer) {
 		if (!CreatorLayer::init())
 			return false;
 		
-		auto mainmenubutton = this->getChildByID("bottom-left-menu");
-		auto btn = CCMenuItemSpriteExtra::create(
+		auto bottomLeftMenu = this->getChildByID("bottom-left-menu");
+		auto apButton = CCMenuItemSpriteExtra::create(
 			CCSprite::createWithSpriteFrameName("GJ_likeBtn_001.png"),
 			this,
 			menu_selector(menu::onButtonClick)
-			
 		);
 
-		mainmenubutton->addChild(btn);
+		//auto imgTest = CCSprite::create("dsdsdsd,jpg"_spr);
+
+		bottomLeftMenu->addChild(apButton);
+
+		apButton->ignoreAnchorPointForPosition(true);
+
 
 		return true;
 	}
