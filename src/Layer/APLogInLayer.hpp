@@ -14,6 +14,10 @@ public:
 
 	void onButtonClick(CCObject* btn);
 
+    void onButtonClick2(CCObject* btn);
+
+	void onClickConnectButton(CCObject* btn);
+
 protected:
     bool init() override;
 };
