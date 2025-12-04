@@ -6,11 +6,13 @@ using namespace geode::prelude;
 
 class APLayer : public CCLayer {
 public:
-    // Erzeugt eine Instanz mit dem üblichen Cocos2d-x/Geode-Makro
     CREATE_FUNC(APLayer);
 
-    // Fügt dieses Layer einer neuen Szene hinzu und öffnet sie
+    // Öffnet die Scene mit diesem Layer
     void show();
+
+    // Button-Handler — muss in der Header-Datei deklariert sein
+    void onButtonClick(CCObject* btn);
 
 protected:
     bool init() override;
