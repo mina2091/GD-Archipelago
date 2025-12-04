@@ -4,6 +4,8 @@
 #include <Geode/ui/General.hpp>
 #include <Geode/ui/LazySprite.hpp>
 #include <Geode/cocos/layers_scenes_transitions_nodes/CCTransition.h>
+#include <Geode/cocos/cocoa/CCArray.h>
+
 
 #include "APLayer.hpp"
 
@@ -13,13 +15,17 @@ bool APLayer::init() {
     if (!CCLayer::init())
         return false;
 
-    // Platz für spätere UI-Initialisierung (Buttons, List, ...)
+	auto size = CCDirector::sharedDirector()->getWinSize();
 
+
+    //Add background to new scene
     auto bg = createLayerBG();
 	bg->setID("ap-layer-bg");
 	bg->setColor({ 136, 73, 172 });
     this->addChild(bg);
 
+
+    //Top Left menu, mainly used te re-enter latest scene
 	auto topLeftMenu = CCMenu::create();
 
     auto backButton = CCMenuItemSpriteExtra::create(
@@ -28,23 +34,41 @@ bool APLayer::init() {
         menu_selector(APLayer::onButtonClick)
     );
 
-    topLeftMenu->setPosition({ 25, CCDirector::sharedDirector()->getWinSize().height - 25});
+    topLeftMenu->setPosition({ 25, size.height - 25});
 	topLeftMenu->addChild(backButton);
 	topLeftMenu->setZOrder(2);
     topLeftMenu->setID("top-left-menu");
     this->addChild(topLeftMenu);
 
+    //List of available Archipelago Levels
+    auto listLayer = GJListLayer::create(
+        CustomListView::create(
+            CCArray::create(),
+            BoomListType::Level,
+            226.0f,
+            356.0f
+        ),
+        "archipelago level list",
+        {172,121,202},
+        356.0f,
+        226.0f,
+        0
+    );
+	listLayer->setZOrder(2);
+	listLayer->setPosition(size/2 - listLayer->getContentSize()/2);
+    this->addChild(listLayer);
+
     return true;
 }
 
 void APLayer::show() {
-    // Neue Szene erstellen und dieses Layer hinzufügen
+	//Create a new scene and add this layer to it
     auto scene = CCScene::create();
     scene->addChild(this);
 
     auto director = CCDirector::sharedDirector();
     if (director->getRunningScene()) {
-        // Ersetze die aktuelle Szene durch die neue
+		//Push the new scene with a fade transition if a scene is already running
         director->pushScene(
             CCTransitionFade::create(
                 .5f,
@@ -53,7 +77,7 @@ void APLayer::show() {
         );
     }
     else {
-        // Falls keine Szene läuft, starte mit der neuen
+		//Otherwise just run the scene
         director->runWithScene(scene);
     }
 
