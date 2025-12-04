@@ -12,6 +12,8 @@ public:
     // Fügt dieses Layer einer neuen Szene hinzu und öffnet sie
     void show();
 
+	void onButtonClick(CCObject* btn);
+
 protected:
     bool init() override;
 };
