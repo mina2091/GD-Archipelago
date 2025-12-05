@@ -10,6 +10,8 @@
 #include <Geode/binding/CCTextInputNode.hpp>
 #include <Geode/binding/ButtonSprite.hpp>
 #include <Geode/cocos/menu_nodes/CCMenuItem.h>
+#include <Geode/cocos/label_nodes/CCLabelBMFont.h>
+
 
 
 using namespace geode::prelude;
@@ -28,7 +30,7 @@ bool APLogInLayer::init() {
     auto backButton = CCMenuItemSpriteExtra::create(
         CCSprite::createWithSpriteFrameName("GJ_arrow_01_001.png"),
         this,
-        menu_selector(APLogInLayer::onButtonClick)
+        menu_selector(APLogInLayer::onBackButtonClick)
     );
 
     //back button customization
@@ -41,6 +43,7 @@ bool APLogInLayer::init() {
 
     //text input port create
     auto txtPort = CCTextInputNode::create(300, 50, "Port", "bigFont.fnt");
+    this->inputTxtPort = txtPort;
 
 	//text input port customization
     auto txtPortLocation = CCMenu::create();
@@ -53,6 +56,7 @@ bool APLogInLayer::init() {
 
 	//text input name create
     auto txtName = CCTextInputNode::create(300, 50, "Name", "bigFont.fnt");
+    this->inputTxtName = txtName;
 
 	//text input name customization
     auto txtNameLocation = CCMenu::create();
@@ -62,24 +66,29 @@ bool APLogInLayer::init() {
     txtNameLocation->ignoreAnchorPointForPosition(true);
     this->addChild(txtNameLocation);
 
-
+    
     //connect button sprite
     auto connectButton = ButtonSprite::create(
-        "Connect", 200, true, "bigFont.fnt", "GJ_button_01.png", 50, 1.0f
+        "Connect"
     );
+	connectButton->setID("center-login-connect-button");
+	connectButton->setScale(1.2f);
 
-    //connect button customization 
-    auto connectButtonLocation = CCMenuItem::create(
+	//connect button action and position
+    auto connectMenuItem = CCMenuItemSpriteExtra::create(
+        connectButton,
         this,
-        menu_selector(APLogInLayer::onClickConnectButton) //macht noch nichts funktionales
+        menu_selector(APLogInLayer::onClickConnectButton)
     );
-    connectButtonLocation->setPosition({ CCDirector::sharedDirector()->getWinSize().width / 2, CCDirector::sharedDirector()->getWinSize().height / 2 - 120 });
-    connectButtonLocation->setID("center-login-connect");
-    connectButtonLocation->addChild(connectButton);
-    connectButtonLocation->ignoreAnchorPointForPosition(true);
-    this->addChild(connectButtonLocation);
+    connectMenuItem->setID("center-login-connect");
 
-    // Platz für spätere UI-Initialisierung (Buttons, List, ...)
+    //add to CCMenu to make it clickable
+    auto connectMenu = CCMenu::create(connectMenuItem, nullptr);
+    connectMenu->ignoreAnchorPointForPosition(true);
+	connectMenu->setPosition({ CCDirector::sharedDirector()->getWinSize().width / 2, CCDirector::sharedDirector()->getWinSize().height / 2 - 120 });
+	connectMenu->setID("center-login-connect-menu");
+    this->addChild(connectMenu);
+    
 
     return true;
 }
@@ -104,25 +113,23 @@ void APLogInLayer::show() {
     }
 }
 
-void APLogInLayer::onButtonClick(CCObject* btn) {
+void APLogInLayer::onBackButtonClick(CCObject* btn) {
 	auto director = CCDirector::sharedDirector();
     director->popSceneWithTransition(
         .5f, PopTransition::kPopTransitionFade
     );
 }
 
-void APLogInLayer::onButtonClick2(CCObject* btn) {
-	FLAlertLayer::create(
-        "Connect Button Clicked!",
-        "OK",
-        "You clicked the connect button."
-	)->show();
-}
-
 void APLogInLayer::onClickConnectButton(CCObject* btn) {
+    
+    std::string port = this->inputTxtPort ? this->inputTxtPort->getString() : std::string{};
+    std::string name = this->inputTxtName ? this->inputTxtName->getString() : std::string{};
+
+    auto msg = fmt::format("Port: {}\nName: {}", port, name);
+
     FLAlertLayer::create(
-        "awa",
-        "waw",
-        "huuuu"
+        "Connecting",
+        msg.c_str(),
+        "OK"
     )->show();
 }

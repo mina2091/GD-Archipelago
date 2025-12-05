@@ -12,12 +12,14 @@ public:
     // Fügt dieses Layer einer neuen Szene hinzu und öffnet sie
     void show();
 
-	void onButtonClick(CCObject* btn);
-
-    void onButtonClick2(CCObject* btn);
+	void onBackButtonClick(CCObject* btn);
 
 	void onClickConnectButton(CCObject* btn);
 
 protected:
     bool init() override;
+
+    // callbacks
+    CCTextInputNode* inputTxtPort = nullptr;
+    CCTextInputNode* inputTxtName = nullptr;
 };
