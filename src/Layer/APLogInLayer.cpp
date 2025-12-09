@@ -108,12 +108,12 @@ bool APLogInLayer::init() {
     connectMenuItem->setID("center-login-connect");
 
     //add to CCMenu to make it clickable
-    auto connectMenu = CCMenu::create(connectMenuItem, nullptr);
+    auto connectMenu = CCMenu::create(); 
+    connectMenu->addChild(connectMenuItem); 
     connectMenu->ignoreAnchorPointForPosition(true);
-	connectMenu->setPosition({ CCDirector::sharedDirector()->getWinSize().width / 2, CCDirector::sharedDirector()->getWinSize().height / 2 - 120 });
-	connectMenu->setID("center-login-connect-menu");
+    connectMenu->setPosition({ CCDirector::sharedDirector()->getWinSize().width / 2, CCDirector::sharedDirector()->getWinSize().height / 2 - 120 });
+    connectMenu->setID("center-login-connect-menu");
     this->addChild(connectMenu);
-    
 
     return true;
 }
