@@ -4,8 +4,8 @@
 
 class CCTextInputNode;
 
-//using namespace geode::prelude;
-
+using namespace geode::prelude;
+    
 class APLogInLayer : public CCLayer {
 public:
     // Erzeugt eine Instanz mit dem üblichen Cocos2d-x/Geode-Makro
