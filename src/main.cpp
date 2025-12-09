@@ -2,7 +2,7 @@
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/modify/CreatorLayer.hpp>
 #include <Geode/ui/LazySprite.hpp>
-#include "Layer/APLayer.hpp"
+#include "Layer/APProgressLayer.hpp"
 
 using namespace geode::prelude;
 
@@ -29,7 +29,7 @@ class $modify(menu, CreatorLayer) {
 	}
 
 	void onButtonClick(CCObject * btn) {
-		APLayer::create()->show();
+		APProgressLayer::create()->show();
 	}
 
 };

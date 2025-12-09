@@ -4,9 +4,9 @@
 
 using namespace geode::prelude;
 
-class APLayer : public CCLayer {
+class APProgressLayer : public CCLayer {
 public:
-    CREATE_FUNC(APLayer);
+    CREATE_FUNC(APProgressLayer);
 
     // Öffnet die Scene mit diesem Layer
     void show();
