@@ -11,6 +11,12 @@
 	"version": "v0.0.1",
 	"developer": "Sputnik Dev Team",
 	"description": "archipelagogogogo",
+	"resources": {
+		"sprites":[
+			"src/img/*.png",
+			"src/img/*.jpg"
+		]
+	},
 	"dependencies": {
 		"geode.node-ids": ">=v1.20.0"
 	}
