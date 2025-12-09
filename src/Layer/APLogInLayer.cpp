@@ -2,7 +2,7 @@
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/modify/CreatorLayer.hpp>
 #include <Geode/ui/LazySprite.hpp>
-#include "APLogInLayer.hpp"
+#include <Geode/cocos/sprite_nodes/CCSprite.h>
 #include <Geode/ui/General.hpp>
 #include <Geode/cocos/layers_scenes_transitions_nodes/CCTransition.h>
 #include <Geode/binding/TextArea.hpp>
@@ -12,7 +12,9 @@
 #include <Geode/cocos/menu_nodes/CCMenuItem.h>
 #include <Geode/cocos/label_nodes/CCLabelBMFont.h>
 
-
+#include "APLogInLayer.hpp"
+#include "APLayer.hpp"
+#include "APProgressLayer.hpp"
 
 using namespace geode::prelude;
 
@@ -115,6 +117,32 @@ bool APLogInLayer::init() {
     connectMenu->setID("center-login-connect-menu");
     this->addChild(connectMenu);
 
+    //TEMP
+
+    auto apLayerBtn = CCMenuItemSpriteExtra::create(
+        CCSprite::createWithSpriteFrameName("GJ_arrow_01_001.png"),
+        this,
+        menu_selector(APLogInLayer::tempAPLayerClick)
+    );
+    auto tmp1 = CCMenu::create();
+    tmp1->setPosition({ 75, CCDirector::sharedDirector()->getWinSize().height - 125 });
+    tmp1->addChild(apLayerBtn);
+	tmp1->setID("top-left-temp-ap-layer-btn");
+    this->addChild(tmp1);
+
+    auto progLayerBtn = CCMenuItemSpriteExtra::create(
+        CCSprite::createWithSpriteFrameName("GJ_arrow_02_001.png"),
+        this,
+        menu_selector(APLogInLayer::tempProgressLayerClick)
+    );
+    auto tmp2 = CCMenu::create();
+    tmp2->setPosition({ 505, CCDirector::sharedDirector()->getWinSize().height - 125 });
+    tmp2->addChild(progLayerBtn);
+	tmp2->setID("top-left-temp-prog-layer-btn");
+    this->addChild(tmp2);
+    
+	//TEMP
+
     return true;
 }
 
@@ -164,3 +192,11 @@ void APLogInLayer::connectSuccess() {
     // goto main screen
 }
 */
+
+void APLogInLayer::tempProgressLayerClick(CCObject* btn) {
+    APProgressLayer::create()->show();
+}
+
+void APLogInLayer::tempAPLayerClick(CCObject* btn) {
+    APLayer::create()->show();
+}

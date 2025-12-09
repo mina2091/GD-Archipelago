@@ -7,6 +7,7 @@
 #include <Geode/cocos/cocoa/CCArray.h>
 
 
+#include "APProgressLayer.hpp"
 #include "APLayer.hpp"
 
 using namespace geode::prelude;

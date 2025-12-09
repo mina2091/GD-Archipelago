@@ -14,6 +14,8 @@ public:
     // Button-Handler — muss in der Header-Datei deklariert sein
     void onButtonClickPop(CCObject* btn);
 
+	void openStatsLayer(CCObject* btn);
+
 protected:
     bool init() override;
 };

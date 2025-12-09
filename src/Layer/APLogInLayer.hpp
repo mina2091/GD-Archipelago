@@ -14,9 +14,11 @@ public:
     // Fügt dieses Layer einer neuen Szene hinzu und öffnet sie
     void show();
 
-	void onBackButtonClick(CCObject* btn);
-
+    void onBackButtonClick(CCObject* btn);
 	void onClickConnectButton(CCObject* btn);
+
+    void tempProgressLayerClick(CCObject* btn);
+    void tempAPLayerClick(CCObject* btn);
 
 	//void connnectSuccess();
 
