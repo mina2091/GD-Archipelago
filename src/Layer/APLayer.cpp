@@ -63,7 +63,7 @@ bool APLayer::init() {
     auto statsButton = CCMenuItemSpriteExtra::create(
         CCSprite::createWithSpriteFrameName("GJ_statsBtn_001.png"),
         this,
-        menu_selector(APLayer::onButtonClickPop)                 //TODO: Change to openSatsLayer
+        menu_selector(APLayer::openStatsLayer)
 	);
 
 	bottomRightMenu->setPosition({ size.width - 25, 25 });
@@ -124,6 +124,6 @@ void APLayer::onButtonClickPop(CCObject* btn) {
     );
 }
 
-/*void APLayer::openStatsLayer(CCObject* btn) {
+void APLayer::openStatsLayer(CCObject* btn) {
     APProgressLayer::create()->show();
-}*/
+}
