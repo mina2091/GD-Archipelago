@@ -2,6 +2,7 @@
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/modify/CreatorLayer.hpp>
 #include <Geode/ui/LazySprite.hpp>
+#include "Layer/APLogInLayer.hpp"
 #include "Layer/APProgressLayer.hpp"
 #include "Layer/APLayer.hpp"
 
@@ -14,7 +15,7 @@ class $modify(menu, CreatorLayer) {
 
 		auto bottomLeftMenu = this->getChildByID("bottom-left-menu");
 		auto apButton = CCMenuItemSpriteExtra::create(
-			CCSprite::createWithSpriteFrameName("GJ_likeBtn_001.png"),
+			CCSprite::create("archi_shadow.png"_spr),
 			this,
 			menu_selector(menu::onButtonClick)
 		);
@@ -30,7 +31,7 @@ class $modify(menu, CreatorLayer) {
 	}
 
 	void onButtonClick(CCObject * btn) {
-		APLayer::create()->show();
+		APLogInLayer::create()->show();
 	}
 
 };
