@@ -3,6 +3,8 @@
 #include <Geode/modify/CreatorLayer.hpp>
 #include <Geode/ui/LazySprite.hpp>
 #include "Layer/APLogInLayer.hpp"
+#include "Layer/APProgressLayer.hpp"
+#include "Layer/APLayer.hpp"
 
 using namespace geode::prelude;
 
