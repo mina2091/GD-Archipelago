@@ -31,7 +31,7 @@ bool APLayer::init() {
     auto backButton = CCMenuItemSpriteExtra::create(
         CCSprite::createWithSpriteFrameName("GJ_arrow_01_001.png"),
         this,
-        menu_selector(APLayer::onButtonClick)
+        menu_selector(APLayer::onButtonClickPop)
     );
 
     topLeftMenu->setPosition({ 25, size.height - 25});
@@ -39,6 +39,39 @@ bool APLayer::init() {
 	topLeftMenu->setZOrder(2);
     topLeftMenu->setID("top-left-menu");
     this->addChild(topLeftMenu);
+
+
+	//Top Right Menu for refreshing the list
+	auto topRightMenu = CCMenu::create();
+
+    auto refreshButton = CCMenuItemSpriteExtra::create(
+        CCSprite::createWithSpriteFrameName("GJ_updateBtn_001.png"),
+        this,
+		menu_selector(APLayer::onButtonClickPop)                    //TODO: Change to CustomListView reloadAll or custom AP Level reload function
+	);
+
+	topRightMenu->setPosition({ size.width - 25, size.height - 25 });
+	topRightMenu->addChild(refreshButton);
+	topRightMenu->setZOrder(2);
+	topRightMenu->setID("top-right-menu");
+	this->addChild(topRightMenu);
+    
+
+    //Bottom Right Menu for Stats Scene
+	auto bottomRightMenu = CCMenu::create();
+
+    auto statsButton = CCMenuItemSpriteExtra::create(
+        CCSprite::createWithSpriteFrameName("GJ_statsBtn_001.png"),
+        this,
+        menu_selector(APLayer::onButtonClickPop)                 //TODO: Change to openSatsLayer
+	);
+
+	bottomRightMenu->setPosition({ size.width - 25, 25 });
+	bottomRightMenu->addChild(statsButton);
+	bottomRightMenu->setZOrder(2);
+	bottomRightMenu->setID("bottom-right-menu");
+	this->addChild(bottomRightMenu);
+
 
     //List of available Archipelago Levels
     auto listLayer = GJListLayer::create(
@@ -83,10 +116,14 @@ void APLayer::show() {
 
 }
 
-void APLayer::onButtonClick(CCObject* btn) {
-    // Zurück zur vorherigen Szene wechseln
+void APLayer::onButtonClickPop(CCObject* btn) {
+    // Back to last scene
     auto director = CCDirector::sharedDirector();
     director->popSceneWithTransition(
         .5f, PopTransition::kPopTransitionFade
     );
 }
+
+/*void APLayer::openStatsLayer(CCObject* btn) {
+    APProgressLayer::create()->show();
+}*/

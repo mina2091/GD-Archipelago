@@ -12,7 +12,7 @@ public:
     void show();
 
     // Button-Handler — muss in der Header-Datei deklariert sein
-    void onButtonClick(CCObject* btn);
+    void onButtonClickPop(CCObject* btn);
 
 protected:
     bool init() override;
