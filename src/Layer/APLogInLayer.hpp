@@ -2,7 +2,9 @@
 
 #include <Geode/Geode.hpp>
 
-using namespace geode::prelude;
+class CCTextInputNode;
+
+//using namespace geode::prelude;
 
 class APLogInLayer : public CCLayer {
 public:
