@@ -42,9 +42,6 @@ jobs:
           combine: true
           target: ${{ matrix.config.target }}
 
-      - name: Use prebuilt cocos2d
-        run: echo "COCOS2D_LIB=/opt/libs/libCocos2d_universal.a" >> $GITHUB_ENV && echo "COCOS2D_INC=/opt/libs/cocos2d/include" >> $GITHUB_ENV
-
   package:
     name: Package builds
     runs-on: ubuntu-latest

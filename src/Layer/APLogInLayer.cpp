@@ -147,9 +147,9 @@ void APLogInLayer::onBackButtonClick(CCObject* btn) {
 
 void APLogInLayer::onClickConnectButton(CCObject* btn) {
     
-    std::string port = this->inputTxtPort ? this->inputTxtPort->getString() : std::string{};
-    std::string name = this->inputTxtName ? this->inputTxtName->getString() : std::string{};
-	std::string password = this->inputTxtPassword ? this->inputTxtPassword->getString() : std::string{};
+    std::string port = this->inputTxtPort->getString();
+    std::string name = this->inputTxtName->getString();
+    std::string password = this->inputTxtPassword->getString();
 
     auto msg = fmt::format("Port: {}\nName: {}\nPassword: {}", port, name, password);
 

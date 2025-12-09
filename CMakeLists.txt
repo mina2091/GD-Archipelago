@@ -26,17 +26,3 @@ add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
 
 # Set up dependencies, resources, and link Geode.
 setup_geode_mod(${PROJECT_NAME})
-
-# Optional: explizites Linken einer vorgebauten Cocos2d‑Bibliothek (z.B. universal lib mit arm64/x86_64)
-# Setze in deiner CI oder lokal die Umgebungsvariablen:
-#   COCOS2D_LIB -> Pfad zur libCocos2d.a (universal/arm64 enthalten)
-#   COCOS2D_INC -> Pfad zum include-Verzeichnis von Cocos2d
-if(DEFINED ENV{COCOS2D_LIB})
-    message(STATUS "Linking with external Cocos2d library: $ENV{COCOS2D_LIB}")
-    add_library(Cocos2d STATIC IMPORTED)
-    set_target_properties(Cocos2d PROPERTIES
-        IMPORTED_LOCATION "$ENV{COCOS2D_LIB}"
-        INTERFACE_INCLUDE_DIRECTORIES "$ENV{COCOS2D_INC}"
-    )
-    target_link_libraries(${PROJECT_NAME} PRIVATE Cocos2d)
-endif()
