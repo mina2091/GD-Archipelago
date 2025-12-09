@@ -16,10 +16,13 @@ public:
 
 	void onClickConnectButton(CCObject* btn);
 
+	//void connnectSuccess();
+
 protected:
     bool init() override;
 
     // callbacks
     CCTextInputNode* inputTxtPort = nullptr;
     CCTextInputNode* inputTxtName = nullptr;
+	CCTextInputNode* inputTxtPassword = nullptr;
 };

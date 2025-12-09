@@ -40,31 +40,56 @@ bool APLogInLayer::init() {
     backButtonLocation->setID("top-left-menu");
     this->addChild(backButtonLocation);
     
+    //title text
+    auto titleLogIn = CCLabelBMFont::create("Log in to Archipelago", "bigFont.fnt");
+
+	//title text customization
+	auto titleLogInLocation = CCMenu::create();
+	titleLogInLocation->addChild(titleLogIn);
+	titleLogInLocation->setPosition({ CCDirector::sharedDirector()->getWinSize().width / 2, CCDirector::sharedDirector()->getWinSize().height / 2 + 120 });
+	titleLogInLocation->setID("center-login-title");
+	titleLogInLocation->ignoreAnchorPointForPosition(true);
+
+    this->addChild(titleLogInLocation);
+
 
     //text input port create
-    auto txtPort = CCTextInputNode::create(300, 50, "Port", "bigFont.fnt");
+    auto txtPort = CCTextInputNode::create(300, 50, "Port", "gjFont59-uhd.fnt");
     this->inputTxtPort = txtPort;
 
 	//text input port customization
     auto txtPortLocation = CCMenu::create();
-    txtPortLocation->setPosition({ CCDirector::sharedDirector()->getWinSize().width / 2 - 150, CCDirector::sharedDirector()->getWinSize().height / 2 + 40 });
+    txtPortLocation->setPosition({ CCDirector::sharedDirector()->getWinSize().width / 2, CCDirector::sharedDirector()->getWinSize().height / 2 + 50 });
     txtPortLocation->setID("center-login-port");
+    txtPortLocation->setColor({ 255, 0, 0 });
     txtPortLocation->addChild(txtPort);
     txtPortLocation->ignoreAnchorPointForPosition(true);
     this->addChild(txtPortLocation);
 
 
 	//text input name create
-    auto txtName = CCTextInputNode::create(300, 50, "Name", "bigFont.fnt");
+    auto txtName = CCTextInputNode::create(300, 50, "Name", "gjFont59-uhd.fnt");
     this->inputTxtName = txtName;
 
 	//text input name customization
     auto txtNameLocation = CCMenu::create();
-    txtNameLocation->setPosition({ CCDirector::sharedDirector()->getWinSize().width / 2 - 150, CCDirector::sharedDirector()->getWinSize().height / 2 - 40 });
+    txtNameLocation->setPosition({ CCDirector::sharedDirector()->getWinSize().width / 2, CCDirector::sharedDirector()->getWinSize().height / 2});
     txtNameLocation->setID("center-login-name");
     txtNameLocation->addChild(txtName);
     txtNameLocation->ignoreAnchorPointForPosition(true);
     this->addChild(txtNameLocation);
+
+    //text input password create
+    auto txtPassword = CCTextInputNode::create(300, 50, "Passwort", "gjFont59-uhd.fnt");
+    this->inputTxtPassword = txtPassword;
+
+    //text input password customization
+    auto txtPasswordLocation = CCMenu::create();
+    txtPasswordLocation->setPosition({ CCDirector::sharedDirector()->getWinSize().width / 2, CCDirector::sharedDirector()->getWinSize().height / 2 - 50 });
+    txtPasswordLocation->setID("center-login-password");
+    txtPasswordLocation->addChild(txtPassword);
+    txtPasswordLocation->ignoreAnchorPointForPosition(true);
+    this->addChild(txtPasswordLocation);
 
     
     //connect button sprite
@@ -124,8 +149,9 @@ void APLogInLayer::onClickConnectButton(CCObject* btn) {
     
     std::string port = this->inputTxtPort ? this->inputTxtPort->getString() : std::string{};
     std::string name = this->inputTxtName ? this->inputTxtName->getString() : std::string{};
+	std::string password = this->inputTxtPassword ? this->inputTxtPassword->getString() : std::string{};
 
-    auto msg = fmt::format("Port: {}\nName: {}", port, name);
+    auto msg = fmt::format("Port: {}\nName: {}\nPassword: {}", port, name, password);
 
     FLAlertLayer::create(
         "Connecting",
@@ -133,3 +159,8 @@ void APLogInLayer::onClickConnectButton(CCObject* btn) {
         "OK"
     )->show();
 }
+/*
+void APLogInLayer::connectSuccess() {
+    // goto main screen
+}
+*/
