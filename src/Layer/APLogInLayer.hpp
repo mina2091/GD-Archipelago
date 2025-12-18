@@ -20,6 +20,7 @@ public:
     void tempProgressLayerClick(CCObject* btn);
     void tempAPLayerClick(CCObject* btn);
 
+	void onClickArchiHostButton(CCObject* btn);
 	//void connnectSuccess();
 
 protected:
@@ -29,4 +30,6 @@ protected:
     CCTextInputNode* inputTxtPort = nullptr;
     CCTextInputNode* inputTxtName = nullptr;
 	CCTextInputNode* inputTxtPassword = nullptr;
+
+	bool inputLocalhost = false;
 };

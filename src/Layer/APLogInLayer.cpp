@@ -11,6 +11,8 @@
 #include <Geode/binding/ButtonSprite.hpp>
 #include <Geode/cocos/menu_nodes/CCMenuItem.h>
 #include <Geode/cocos/label_nodes/CCLabelBMFont.h>
+#include <Geode/binding/CCMenuItemToggler.hpp>
+
 
 #include "APLogInLayer.hpp"
 #include "APLayer.hpp"
@@ -117,6 +119,37 @@ bool APLogInLayer::init() {
     connectMenu->setID("center-login-connect-menu");
     this->addChild(connectMenu);
 
+
+    //host toggler buttons
+    auto hostSelector = CCMenuItemToggler::createWithStandardSprites(
+        this,
+        menu_selector(APLogInLayer::onClickArchiHostButton),
+        1.0f
+	);
+	hostSelector->setID("host-toggler");
+
+	//host toggler customization
+	auto hostSelectorLocation = CCMenu::create();
+    hostSelectorLocation->setPosition(25, 25);
+    hostSelectorLocation->addChild(hostSelector);
+    hostSelectorLocation->setID("center-login-host-toggler");
+	this->addChild(hostSelectorLocation);
+
+
+    //host toggler text
+    auto hostText = CCLabelBMFont::create("localhost", "bigFont.fnt");
+
+	//host toggler text customization
+    auto hostTextLocation = CCMenu::create();
+    hostTextLocation->addChild(hostText);
+    hostTextLocation->setPosition(-90, -70);
+	hostTextLocation->setScale(0.4f);
+	hostTextLocation->setID("center-login-host-toggler-text");
+    hostTextLocation->ignoreAnchorPointForPosition(true);
+
+    this->addChild(hostTextLocation);
+
+
     //TEMP
 
     auto apLayerBtn = CCMenuItemSpriteExtra::create(
@@ -179,7 +212,13 @@ void APLogInLayer::onClickConnectButton(CCObject* btn) {
     std::string name = this->inputTxtName->getString();
     std::string password = this->inputTxtPassword->getString();
 
-    auto msg = fmt::format("Port: {}\nName: {}\nPassword: {}", port, name, password);
+    if(inputLocalhost) {
+		port = fmt::format("localhost:{}", port);
+    } else {
+		port = fmt::format("archipelago.gg:{}", port);
+	}
+
+    auto msg = fmt::format("IP: {}\nName: {}\nPassword: {}", port, name, password);
 
     FLAlertLayer::create(
         "Connecting",
@@ -187,6 +226,16 @@ void APLogInLayer::onClickConnectButton(CCObject* btn) {
         "OK"
     )->show();
 }
+
+void APLogInLayer::onClickArchiHostButton(CCObject* btn) {
+    auto toggler = static_cast<CCMenuItemToggler*>(btn);
+    if (!toggler->isToggled()) {
+        inputLocalhost = true;
+    } else {
+        inputLocalhost = false;
+    }
+}
+
 /*
 void APLogInLayer::connectSuccess() {
     // goto main screen
