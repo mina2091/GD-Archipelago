@@ -1,0 +1,3 @@
+[submodule "lib/APCpp-gd"]
+	path = lib/APCpp-gd
+	url = https://github.com/Tiago1257/APCpp-gd
