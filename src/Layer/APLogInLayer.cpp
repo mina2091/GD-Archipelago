@@ -178,6 +178,15 @@ bool APLogInLayer::init() {
     
 	//TEMP
 
+    auto levelsPath = geode::Mod::get()->getResourcesDir() / "levels.json";
+
+    auto allLevels = APConnection::loadLevels(levelsPath.string());
+    auto randomLevels = APConnection::pickRandomLevels(allLevels, 20);
+
+    auto outPath = geode::Mod::get()->getSaveDir() / "randomLevels.json";
+    APConnection::saveLevels(randomLevels, outPath.string());
+    log::info("Saved random levels to: {}", outPath.string());
+
     return true;
 }
 

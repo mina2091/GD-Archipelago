@@ -15,6 +15,9 @@
 		"sprites":[
 			"src/img/*.png",
 			"src/img/*.jpg"
+		],
+		"files": [
+			"resources/*.json"
 		]
 	},
 	"dependencies": {
