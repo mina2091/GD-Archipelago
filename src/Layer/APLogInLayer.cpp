@@ -13,7 +13,7 @@
 #include <Geode/cocos/label_nodes/CCLabelBMFont.h>
 #include <Geode/binding/CCMenuItemToggler.hpp>
 
-
+#include <Archipelago.h>
 #include "APLogInLayer.hpp"
 #include "APLayer.hpp"
 #include "APProgressLayer.hpp"
@@ -207,24 +207,32 @@ void APLogInLayer::onBackButtonClick(CCObject* btn) {
 }
 
 void APLogInLayer::onClickConnectButton(CCObject* btn) {
-    
-    std::string port = this->inputTxtPort->getString();
-    std::string name = this->inputTxtName->getString();
-    std::string password = this->inputTxtPassword->getString();
 
-    if(inputLocalhost) {
-		port = fmt::format("localhost:{}", port);
-    } else {
-		port = fmt::format("archipelago.gg:{}", port);
-	}
+    std::string portStr = this->inputTxtPort->getString();
+    std::string slotNameStr = this->inputTxtName->getString();
+    std::string passwordStr = this->inputTxtPassword->getString();
 
-    auto msg = fmt::format("IP: {}\nName: {}\nPassword: {}", port, name, password);
+    //AP Init
+    std::string hostStr = fmt::format("localhost:{}", portStr);
+    const char* host = hostStr.c_str();
+    const char* gameName = "Geometry Dash";
+    const char* slotName = slotNameStr.c_str();
+    const char* password = passwordStr.c_str();
 
-    FLAlertLayer::create(
+    AP_Init(host, gameName, slotName, password);
+    /*AP_SetItemClearCallback(APConnection::clearItemCallback);
+    AP_SetItemRecvCallback(APConnection::itemReceivedCallback);
+    AP_SetLocationCheckedCallback(APConnection::locationCheckedCallback);
+    AP_Start();
+    */
+
+    //auto msg = fmt::format("Port: {}\nName: {}\nPassword: {}", port, slotName, password);
+
+    /*FLAlertLayer::create(
         "Connecting",
         msg.c_str(),
         "OK"
-    )->show();
+    )->show();*/
 }
 
 void APLogInLayer::onClickArchiHostButton(CCObject* btn) {
