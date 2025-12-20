@@ -15,6 +15,8 @@
 
 #include <Archipelago.h>
 #include "APLogInLayer.hpp"
+
+#include "APConnection.h"
 #include "APLayer.hpp"
 #include "APProgressLayer.hpp"
 
@@ -212,19 +214,24 @@ void APLogInLayer::onClickConnectButton(CCObject* btn) {
     std::string slotNameStr = this->inputTxtName->getString();
     std::string passwordStr = this->inputTxtPassword->getString();
 
+    if(inputLocalhost) {
+        portStr = fmt::format("localhost:{}", portStr);
+    } else {
+        portStr = fmt::format("archipelago.gg:{}", portStr);
+    }
+
     //AP Init
-    std::string hostStr = fmt::format("localhost:{}", portStr);
-    const char* host = hostStr.c_str();
+    const char* host = portStr.c_str();
     const char* gameName = "Geometry Dash";
     const char* slotName = slotNameStr.c_str();
     const char* password = passwordStr.c_str();
 
     AP_Init(host, gameName, slotName, password);
-    /*AP_SetItemClearCallback(APConnection::clearItemCallback);
-    AP_SetItemRecvCallback(APConnection::itemReceivedCallback);
-    AP_SetLocationCheckedCallback(APConnection::locationCheckedCallback);
+    AP_SetItemClearCallback(&APConnection::clearItemCallback);
+    AP_SetItemRecvCallback(&APConnection::itemReceivedCallback);
+    AP_SetLocationCheckedCallback(&APConnection::locationCheckedCallback);
     AP_Start();
-    */
+
 
     //auto msg = fmt::format("Port: {}\nName: {}\nPassword: {}", port, slotName, password);
 

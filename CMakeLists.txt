@@ -17,7 +17,9 @@ project(GD-Archipelago VERSION 1.0.0)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 
 # Set up the mod binary
-add_library(${PROJECT_NAME} SHARED ${SOURCES})
+add_library(${PROJECT_NAME} SHARED ${SOURCES}
+        src/Layer/APConnection.cpp
+        src/Layer/APConnection.h)
 
 add_compile_options(-Wall -Wextra)
 
