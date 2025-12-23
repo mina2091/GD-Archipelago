@@ -18,6 +18,8 @@ namespace APConnection {
     std::vector<Level> loadLevels(const std::string& path);
     void saveLevels(const std::vector<Level>& levels, const std::string& path);
 
+    //TEMP
+    extern std::vector<Level> randomLevels;
 };
 
 

@@ -5,6 +5,7 @@
 #include <Geode/ui/LazySprite.hpp>
 #include <Geode/cocos/layers_scenes_transitions_nodes/CCTransition.h>
 #include <Geode/cocos/cocoa/CCArray.h>
+#include <Geode/binding/GJGameLevel.hpp>
 
 
 #include "APProgressLayer.hpp"
@@ -74,10 +75,19 @@ bool APLayer::init() {
 	this->addChild(bottomRightMenu);
 
 
+	//Build CCArray for CustomListView
+	auto levelArray = CCArray::create();
+
+	for (const auto& apLevel : APConnection::randomLevels) {
+		levelArray->addObject(
+			createLevelShell(apLevel)
+		);
+	}
+
     //List of available Archipelago Levels
     auto listLayer = GJListLayer::create(
         CustomListView::create(
-            CCArray::create(),
+            levelArray,
             BoomListType::Level,
             226.0f,
             356.0f
@@ -127,4 +137,29 @@ void APLayer::onButtonClickPop(CCObject* btn) {
 
 void APLayer::openStatsLayer(CCObject* btn) {
     APProgressLayer::create()->show();
+}
+
+//convert level structs to GJGameLevel shells to show in ListView
+GJGameLevel* APLayer::createLevelShell(const Level& ap) {
+	int levelID = std::stoi(ap.id);
+
+	// create lightweight shell, no auto strings
+	auto level = LevelTools::getLevel(levelID, true);
+
+	// REQUIRED UI FIELDS
+	level->m_levelID = levelID;
+	level->m_levelName = ap.name;
+	level->m_creatorName = "Archipelago";
+	level->m_isUploaded = true;
+	level->m_isVerified = true;
+
+	// FEATURED FLAGS
+	level->m_featured = true;
+	level->m_isEpic = false;          // set if you want epic glow
+	level->m_stars = 0;               // shown on cell
+
+	// Difficulty (important for face icon)
+	level->m_difficulty = GJDifficulty::Harder;//TODO: assert right difficulty image using level struct difficulty
+
+	return level;
 }

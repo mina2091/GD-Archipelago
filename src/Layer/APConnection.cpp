@@ -80,3 +80,6 @@ void APConnection::saveLevels(const std::vector<Level>& levels, const std::strin
     std::ofstream out(path);
     out << j.dump(4); // pretty print
 }
+
+//TEMP to avoid linker error for global variable
+std::vector<Level> APConnection::randomLevels;

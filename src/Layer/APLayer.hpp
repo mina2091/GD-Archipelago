@@ -1,6 +1,9 @@
 ﻿#pragma once
 
 #include <Geode/Geode.hpp>
+#include <Geode/binding/GJGameLevel.hpp>
+
+#include "APConnection.h"
 
 using namespace geode::prelude;
 
@@ -15,6 +18,8 @@ public:
     void onButtonClickPop(CCObject* btn);
 
 	void openStatsLayer(CCObject* btn);
+
+    GJGameLevel* createLevelShell(const Level& ap);
 
 protected:
     bool init() override;
