@@ -11,10 +11,19 @@ struct Level {
 
 namespace APConnection {
 
+    void setMinDiff(int i);
+    void setMaxDiff(int i);
+    void setLevelAmount(int i);
+    void setGoalAmount(int i);
+    void setChecksPerLevel(int i);
+    void setStartingLevelAmount(int i);
+
+    void worldInputInit();                  //init from world
+
     void clearItemCallback();
     void itemReceivedCallback(int64_t id, bool notify);
     void locationCheckedCallback(int64_t id);
-    std::vector<Level> pickRandomLevels(const std::vector<Level>& allLevels, std::size_t count);
+    std::vector<Level> pickRandomLevels(const std::vector<Level>& allLevels);
     std::vector<Level> loadLevels(const std::string& path);
     void saveLevels(const std::vector<Level>& levels, const std::string& path);
 

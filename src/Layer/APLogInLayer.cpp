@@ -181,7 +181,7 @@ bool APLogInLayer::init() {
     auto levelsPath = geode::Mod::get()->getResourcesDir() / "levels.json";
 
     auto allLevels = APConnection::loadLevels(levelsPath.string());
-    APConnection::randomLevels = APConnection::pickRandomLevels(allLevels, 20);
+    APConnection::randomLevels = APConnection::pickRandomLevels(allLevels);
 
     auto outPath = geode::Mod::get()->getSaveDir() / "randomLevels.json";
     APConnection::saveLevels(APConnection::randomLevels, outPath.string());
@@ -239,6 +239,7 @@ void APLogInLayer::onClickConnectButton(CCObject* btn) {
     AP_SetItemClearCallback(&APConnection::clearItemCallback);
     AP_SetItemRecvCallback(&APConnection::itemReceivedCallback);
     AP_SetLocationCheckedCallback(&APConnection::locationCheckedCallback);
+    APConnection::worldInputInit();
     AP_Start();
 
 

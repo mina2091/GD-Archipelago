@@ -1,5 +1,6 @@
 
 #include "APConnection.h"
+#include "Archipelago.h"
 #include <../../lib/json.hpp>
 #include <fstream>
 #include <vector>
@@ -7,6 +8,15 @@
 
 // for convenience
 using json = nlohmann::json;
+
+//data needed from .yaml
+//idk if they need to be "= 0" but it works so whatever
+auto ap_min_diff = 0;
+auto ap_max_diff = 0;
+auto ap_level_amount = 0;
+auto ap_goal_amount = 0;
+auto ap_checks_per_level = 0;
+auto ap_starting_level_amount = 0;
 
 void APConnection::clearItemCallback() {
 
@@ -20,13 +30,50 @@ void APConnection::locationCheckedCallback(int64_t id) {
 
 }
 
-std::vector<Level> APConnection::pickRandomLevels(const std::vector<Level>& allLevels, std::size_t count) {
-    if (count > allLevels.size()) {
+//convert into local variables
+void APConnection::setMinDiff(int i){
+    ap_min_diff = i;
+}
+
+void APConnection::setMaxDiff(int i){
+    ap_max_diff = i;
+}
+
+void APConnection::setLevelAmount(int i){
+    ap_level_amount = i;
+}
+
+void APConnection::setGoalAmount(int i)
+{
+    ap_goal_amount = i;
+}
+
+void APConnection::setChecksPerLevel(int i){
+    ap_checks_per_level = i;
+}
+
+void APConnection::setStartingLevelAmount(int i){
+    ap_starting_level_amount = i;
+}
+
+//takes slot_fill_data from world and converts into local variables
+void APConnection::worldInputInit(){
+    AP_RegisterSlotDataIntCallback("min_diff", &setMinDiff);
+    AP_RegisterSlotDataIntCallback("max_diff", &setMaxDiff);
+    AP_RegisterSlotDataIntCallback("level_amount", &setLevelAmount);
+    AP_RegisterSlotDataIntCallback("goal_amount", &setGoalAmount);
+    AP_RegisterSlotDataIntCallback("checks_per_level", &setChecksPerLevel);
+    AP_RegisterSlotDataIntCallback("starting_level_amount", &setStartingLevelAmount);
+}
+
+std::vector<Level> APConnection::pickRandomLevels(const std::vector<Level>& allLevels) {
+
+    if (ap_level_amount > allLevels.size()) {
         throw std::runtime_error("Requested more levels than available");
     }
 
     std::vector<Level> result;
-    result.reserve(count);
+    result.reserve(ap_level_amount);
 
     std::vector<std::size_t> indices(allLevels.size());
     std::iota(indices.begin(), indices.end(), 0);
@@ -35,7 +82,7 @@ std::vector<Level> APConnection::pickRandomLevels(const std::vector<Level>& allL
     std::mt19937 rng(rd());
     std::shuffle(indices.begin(), indices.end(), rng);
 
-    for (std::size_t i = 0; i < count; ++i) {
+    for (std::size_t i = 0; i < ap_level_amount; ++i) {
         result.push_back(allLevels[indices[i]]);
     }
 
