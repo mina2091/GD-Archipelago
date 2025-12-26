@@ -18,6 +18,8 @@ auto ap_goal_amount = 0;
 auto ap_checks_per_level = 0;
 auto ap_starting_level_amount = 0;
 
+auto percentage_for_check = 1;
+
 void APConnection::clearItemCallback() {
 
 }
@@ -50,6 +52,7 @@ void APConnection::setGoalAmount(int i)
 
 void APConnection::setChecksPerLevel(int i){
     ap_checks_per_level = i;
+    percentage_for_check = 100 / ap_checks_per_level;
 }
 
 void APConnection::setStartingLevelAmount(int i){
