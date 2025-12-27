@@ -157,7 +157,7 @@ GJGameLevel* APLayer::createLevelShell(const Level& ap) {
 	// FEATURED FLAGS
 	level->m_featured = true;
 	level->m_isEpic = false;          // set if you want epic glow
-	level->m_stars = ap.difficulty_id;	//TODO:change this to actual star rating, difficulty id is different
+	level->m_stars = ap.stars_amount;
 
 	// Difficulty (important for face icon)
 	level->m_autoLevel = false;
@@ -165,13 +165,32 @@ GJGameLevel* APLayer::createLevelShell(const Level& ap) {
 	//Demon difficulty icon
 	if (ap.difficulty_id > 5)
 	{
-		level->m_stars = 10;
+		level->m_demon = true;
 		level->m_difficulty = GJDifficulty::Demon;
 		level->m_demonDifficulty = ap.difficulty_id - 5; //Easy = 1, Medium = 2, Hard = 3, Insane = 4, Extreme = 5
 	}
 	else
 	{
-		level->m_difficulty = GJDifficulty::Hard;
+		level->m_demon = false;
+		switch (ap.difficulty_id)
+		{
+		case 1:
+			level->m_difficulty = GJDifficulty::Easy;
+			break;
+		case 2:
+			level->m_difficulty = GJDifficulty::Normal;
+			break;
+		case 3:
+			level->m_difficulty = GJDifficulty::Hard;
+			break;
+		case 4:
+			level->m_difficulty = GJDifficulty::Harder;
+			break;
+		case 5:
+			level->m_difficulty = GJDifficulty::Insane;
+			break;
+		}
+
 	}
 
 

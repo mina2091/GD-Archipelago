@@ -8,6 +8,7 @@ struct Level {
     std::string id;
     std::string difficulty;
     int difficulty_id;
+    int stars_amount;
 };
 
 namespace APConnection {
