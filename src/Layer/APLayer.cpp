@@ -191,7 +191,25 @@ GJGameLevel* APLayer::createLevelShell(const Level& ap) {
 	{
 		level->m_demon = true;
 		level->m_difficulty = GJDifficulty::Demon;
-		level->m_demonDifficulty = ap.difficulty_id - 5; //Easy = 1, Medium = 2, Hard = 3, Insane = 4, Extreme = 5
+		//Demon difficulty(don't ask why geode does this): Easy = 5, Medium = 3, Hard = 1, Insane = 2, Extreme = 4
+		switch (ap.difficulty_id-5)
+		{
+		case 1:
+			level->m_demonDifficulty = 5;
+			break;
+		case 2:
+			level->m_demonDifficulty = 3;
+			break;
+		case 3:
+			level->m_demonDifficulty = 1;
+			break;
+		case 4:
+			level->m_demonDifficulty = 2;
+			break;
+		case 5:
+			level->m_demonDifficulty = 4;
+			break;
+		}
 	}
 	else
 	{

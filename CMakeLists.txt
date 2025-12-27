@@ -19,7 +19,8 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 # Set up the mod binary
 add_library(${PROJECT_NAME} SHARED ${SOURCES}
         src/Utils/APConnection.cpp
-        src/Utils/APConnection.h)
+        src/Utils/APConnection.hpp
+        src/hooks/LevelCell.cpp)
 
 add_compile_options(-Wall -Wextra)
 
