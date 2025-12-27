@@ -3,7 +3,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/binding/GJGameLevel.hpp>
 
-#include "APConnection.h"
+#include "../Utils/APConnection.hpp"
 
 using namespace geode::prelude;
 
@@ -16,6 +16,8 @@ public:
 
     // Button-Handler — muss in der Header-Datei deklariert sein
     void onButtonClickPop(CCObject* btn);
+
+    void onLogOutButtonClick(CCObject* btn);
 
 	void openStatsLayer(CCObject* btn);
 

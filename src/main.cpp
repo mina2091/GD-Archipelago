@@ -8,6 +8,8 @@
 
 using namespace geode::prelude;
 
+bool logged_in = false;
+
 class $modify(menu, CreatorLayer) {
 	bool init() {
 		if (!CreatorLayer::init())
@@ -17,21 +19,21 @@ class $modify(menu, CreatorLayer) {
 		auto apButton = CCMenuItemSpriteExtra::create(
 			CCSprite::create("archi_shadow.png"_spr),
 			this,
-			menu_selector(menu::onButtonClick)
+			menu_selector(menu::onAPButtonClick)
 		);
 
-		//auto imgTest = CCSprite::create("dsdsdsd,jpg"_spr);
-
 		bottomLeftMenu->addChild(apButton);
-
 		apButton->ignoreAnchorPointForPosition(true);
 
 
 		return true;
 	}
 
-	void onButtonClick(CCObject * btn) {
-		APLogInLayer::create()->show();
+	void onAPButtonClick(CCObject * btn) {
+		if(!logged_in)
+			APLogInLayer::create()->show();
+		else
+			APLayer::create()->show();
 	}
 
 };

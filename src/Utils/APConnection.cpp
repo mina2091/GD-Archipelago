@@ -1,5 +1,5 @@
 
-#include "APConnection.h"
+#include "APConnection.hpp"
 #include "Archipelago.h"
 #include <../../lib/json.hpp>
 #include <fstream>
@@ -13,7 +13,7 @@ using json = nlohmann::json;
 //idk if they need to be "= 0" but it works so whatever
 auto ap_min_diff = 0;
 auto ap_max_diff = 0;
-auto ap_level_amount = 0;
+auto ap_level_amount = 10; //test value for now
 auto ap_goal_amount = 0;
 auto ap_checks_per_level = 0;
 auto ap_starting_level_amount = 0;

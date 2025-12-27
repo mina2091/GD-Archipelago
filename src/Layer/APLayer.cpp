@@ -13,6 +13,8 @@
 
 using namespace geode::prelude;
 
+extern bool logged_in;
+
 bool APLayer::init() {
     if (!CCLayer::init())
         return false;
@@ -102,6 +104,20 @@ bool APLayer::init() {
 	listLayer->setPosition(size/2 - listLayer->getContentSize()/2);
     this->addChild(listLayer);
 
+	//log out button
+	auto logOutButton = CCMenuItemSpriteExtra::create(
+		CircleButtonSprite::createWithSprite("log_out.png"_spr, 1.0f, CircleBaseColor::Gray, CircleBaseSize::SmallAlt),
+		this,
+		menu_selector(APLayer::onLogOutButtonClick)
+	);
+
+	//log out button customization
+	auto logOutButtonLocation = CCMenu::create();
+	logOutButtonLocation->setPosition({ 25, 25 });
+	logOutButtonLocation->addChild(logOutButton);
+	logOutButtonLocation->setID("log-out-button-buttom-left");
+	this->addChild(logOutButtonLocation);
+
     return true;
 }
 
@@ -133,6 +149,14 @@ void APLayer::onButtonClickPop(CCObject* btn) {
     director->popSceneWithTransition(
         .5f, PopTransition::kPopTransitionFade
     );
+}
+
+void APLayer::onLogOutButtonClick(CCObject* btn) {
+	logged_in = false;
+	auto director = CCDirector::sharedDirector();
+	director->popSceneWithTransition(
+		.5f, PopTransition::kPopTransitionFade
+	);
 }
 
 void APLayer::openStatsLayer(CCObject* btn) {

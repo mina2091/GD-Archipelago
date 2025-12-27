@@ -16,9 +16,11 @@
 #include <Archipelago.h>
 #include "APLogInLayer.hpp"
 
-#include "APConnection.h"
+#include "../Utils/APConnection.hpp"
 #include "APLayer.hpp"
 #include "APProgressLayer.hpp"
+
+extern bool logged_in;
 
 using namespace geode::prelude;
 
@@ -86,7 +88,7 @@ bool APLogInLayer::init() {
     this->addChild(txtNameLocation);
 
     //text input password create
-    auto txtPassword = CCTextInputNode::create(300, 50, "Passwort", "gjFont59-uhd.fnt");
+    auto txtPassword = CCTextInputNode::create(300, 50, "Password", "gjFont59-uhd.fnt");
     this->inputTxtPassword = txtPassword;
 
     //text input password customization
@@ -228,6 +230,8 @@ void APLogInLayer::onClickConnectButton(CCObject* btn) {
     } else {
         portStr = fmt::format("archipelago.gg:{}", portStr);
     }
+
+	logged_in = true;
 
     //AP Init
     const char* host = portStr.c_str();
