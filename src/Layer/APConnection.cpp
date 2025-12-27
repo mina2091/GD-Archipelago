@@ -109,7 +109,8 @@ std::vector<Level> APConnection::loadLevels(const std::string& path) {
         levels.push_back(Level{
             entry.at("name").get<std::string>(),
             entry.at("id").get<std::string>(),
-            entry.at("difficulty").get<std::string>()
+            entry.at("difficulty").get<std::string>(),
+            entry.at("difficulty-id").get<int>()
         });
     }
 
@@ -123,7 +124,8 @@ void APConnection::saveLevels(const std::vector<Level>& levels, const std::strin
         j.push_back({
             {"name", level.name},
             {"id", level.id},
-            {"difficulty", level.difficulty}
+            {"difficulty", level.difficulty},
+            {"difficulty-id", level.difficulty_id}
         });
     }
 
