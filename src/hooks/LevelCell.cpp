@@ -52,11 +52,11 @@ class $modify(APLevelCell, LevelCell) {
         if (level->m_demon)
         {
             switch (level->m_difficulty) {
-                case GJDifficulty::DemonEasy: return "EasyDemon.png"_spr;
-                case GJDifficulty::DemonMedium: return "MediumDemon.png"_spr;
-                case GJDifficulty::Demon: return "Demon.png"_spr;
-                case GJDifficulty::DemonInsane: return "InsaneDemon.png"_spr;
-                case GJDifficulty::DemonExtreme: return "ExtremeDemon.png"_spr;
+                case GJDifficulty::DemonEasy: return "difficulty_07_btn_001.png";
+                case GJDifficulty::DemonMedium: return "difficulty_08_btn_001.png";
+                case GJDifficulty::Demon: return "difficulty_06_btn_001.png";
+                case GJDifficulty::DemonInsane: return "difficulty_09_btn_001.png";
+                case GJDifficulty::DemonExtreme: return "difficulty_10_btn_001.png";
             default: break;
             }
         }
