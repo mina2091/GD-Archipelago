@@ -10,12 +10,13 @@
 
 #include <string>
 
+#include "APConnection.hpp"
 #include "Archipelago.h"
 
 extern int ap_percentage_for_check;
 
 auto local_ppc = ap_percentage_for_check;
-auto progress = ap_percentage_for_check;
+//auto progress = ap_percentage_for_check;
 
 class $modify (PlayLayer){
 
@@ -23,43 +24,65 @@ class $modify (PlayLayer){
 	virtual void postUpdate(float p0) {
 		PlayLayer::postUpdate(p0);
 
-		if (this->getCurrentPercent() > progress) {
+		int level = -1; //local
+		int ap_id = APConnection::IDtoLvl[m_level->m_levelID];
+		int lvl_progress = APConnection::getProgressFromID(ap_id);
+
+		auto lvl = APConnection::IDtoLvl.find(m_level->m_levelID);
+			if (lvl != APConnection::IDtoLvl.end()) {
+				level = lvl->second + 1;
+
+			}else {
+				geode::log::info("Level ID {} not in AP", m_level->m_levelID);
+				return;
+			}
+
+		if (this->getCurrentPercent() > lvl_progress && lvl_progress != 0) {
 
 			//it doesnt work for 100% yet, no idea why
 			AchievementNotifier::sharedState()->notifyAchievement(
 				"Check Sent!",
-				fmt::format("Check has been sent! ({}%)", progress).c_str(),
+				fmt::format("Check has been sent! ({}%)", lvl_progress).c_str(),
 				"../img/archi.png"_spr,
 				false
 			);
 
-			int level = 2;
-
-			int loc = 0x100 + (level - 1) * 100 + (progress/5)-1;
+			int loc = 0x100 + (level - 1) * 100 + (lvl_progress/5)-1;
 			//256 - 0 * 100 + 1/1  = 256
 
+			geode::log::info("Level {}, {}% complete.", level, lvl_progress);
 			geode::log::info("Sending Item ID: {}", loc);
+			geode::log::info("Level ID: {}", m_level->m_levelID);
 			AP_SendItem(loc);
 
 			/*
-				256 = 05% // 0
-				257 = 10% // 1
-				258 = 15% // 2
-				259 = 20% // 3
-				260 = 25% // 4
+				256 = 05% // 1
+				257 = 10% 
+				258 = 15% 
+				259 = 20% 
+				260 = 25%
+				275 = 100% 
+
+				356 = 05% // 2
+				357 = 10%
+				358 = 15% 
+				[...]
 			*/
 
 			AP_SetLocationCheckedCallback([](int64_t loc) {
 				geode::log::info("Location checked: {}", loc);
 			});
 
+			/*
 			if (this->getCurrentPercent() == 100) {
 				progress = 101;	//out of the loop
 			}
+			*/
 
-			if (progress < 100) {
-				progress += local_ppc;
+			//TODO: make it work for 100% and add to something like "finished_levels" so it can track and get win condition
+			if (lvl_progress < 100) {
 				this->PlayLayer::destroyPlayer(m_player1, nullptr);
+				return;
 			}
 		}
 	}

@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 #include <random>
+#include <unordered_map>
 
 // for convenience
 using json = nlohmann::json;
@@ -13,22 +14,38 @@ using json = nlohmann::json;
 //idk if they need to be "= 0" but it works so whatever
 auto ap_min_diff = 0;
 auto ap_max_diff = 0;
-auto ap_level_amount = 10; //test value for now
+auto ap_level_amount = 20; //test value for now
 auto ap_goal_amount = 0;
 auto ap_checks_per_level = 0;
 auto ap_starting_level_amount = 0;
-auto ap_percentage_for_check = 20;
+auto ap_percentage_for_check = 20; //test value for now
+
+namespace APConnection {
+    std::vector<int64_t> lvlToID;
+    std::unordered_map<int64_t, int64_t> IDtoLvl;
+}
 
 void APConnection::clearItemCallback() {
-
+    geode::log::info("APConnection::clearItemCallback");
 }
 
 void APConnection::itemReceivedCallback(int64_t id, bool notify) {
+    geode::log::info("Received Item ID: {}", id);
 
+    //[GD-Archipelago]: APConnection::itemReceivedCallback, 356 - Level 1
+    //[GD-Archipelago]: APConnection::itemReceivedCallback, 456 - Level 2
+
+    id = (id - 56)/100-3;
+	// (356 - 56) / 100 - 3 = 0
+	// (456 - 56) / 100 - 3 = 1
+
+	auto new_progress = getProgressFromID(id) + ap_percentage_for_check;
+	geode::log::info("Updated Level {} progress from {}% to {}%", id + 1, getProgressFromID(id), new_progress);
+	setLevelProgress(id, new_progress);
 }
 
 void APConnection::locationCheckedCallback(int64_t id) {
-
+    geode::log::info("Received Location Check ID: {}", id);
 }
 
 //convert into local variables
@@ -88,6 +105,8 @@ std::vector<Level> APConnection::pickRandomLevels(const std::vector<Level>& allL
         result.push_back(allLevels[indices[i]]);
     }
 
+    APConnection::buildIDTable(result);
+
     return result;
 }
 
@@ -106,6 +125,7 @@ std::vector<Level> APConnection::loadLevels(const std::string& path) {
 
     for (const auto& entry : j) {
         levels.push_back(Level{
+            0,
             entry.at("name").get<std::string>(),
             entry.at("id").get<std::string>(),
             entry.at("difficulty").get<std::string>(),
@@ -132,6 +152,44 @@ void APConnection::saveLevels(const std::vector<Level>& levels, const std::strin
 
     std::ofstream out(path);
     out << j.dump(4); // pretty print
+}
+
+void APConnection::setLevelProgress(int64_t ap_id, int prog) {
+	for (int i = 0; i < randomLevels.size(); ++i) {
+        if(std::stoll(randomLevels[i].id) == lvlToID[ap_id]) {
+            randomLevels[i].ap_progress = prog;
+			geode::log::info("Set Level {} progress to {}", i + 1, prog);
+            return;
+        }
+    }
+}
+
+int64_t APConnection::getProgressFromID(int64_t ap_id) {
+    for (int i = 0; i < randomLevels.size(); ++i) {
+        if(std::stoll(randomLevels[i].id) == lvlToID[ap_id]) {
+            return randomLevels[i].ap_progress;
+        }
+    }
+    return 0;
+}
+
+void APConnection::buildIDTable(const std::vector<Level>& levels){
+    lvlToID.clear();
+    IDtoLvl.clear();
+
+    for (size_t i = 0; i < levels.size(); ++i){
+        int64_t id = std::stoll(levels[i].id);
+        lvlToID.push_back(id);
+
+        IDtoLvl[id] = static_cast<int64_t>(i);
+        geode::log::info("Register Level {} -> {}", i + 1, id);
+    }
+
+    // lvlToID[0] = ID Level 1
+    // lvlToID[1] = ID Level 2
+
+    // IDToLvl[12345] = 1
+    // IDToLvl[73263] = 2
 }
 
 //TEMP to avoid linker error for global variable
