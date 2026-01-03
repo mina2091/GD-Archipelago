@@ -20,7 +20,6 @@ auto local_ppc = ap_percentage_for_check;
 
 class $modify (PlayLayer){
 
-
 	virtual void postUpdate(float p0) {
 		PlayLayer::postUpdate(p0);
 
@@ -37,7 +36,7 @@ class $modify (PlayLayer){
 				return;
 			}
 
-		if (this->getCurrentPercent() > lvl_progress && lvl_progress != 0) {
+		if (this->getCurrentPercent() > lvl_progress && lvl_progress != 0 && this->isGameplayActive()) {
 
 			//it doesnt work for 100% yet, no idea why
 			AchievementNotifier::sharedState()->notifyAchievement(
@@ -84,6 +83,7 @@ class $modify (PlayLayer){
 				this->PlayLayer::destroyPlayer(m_player1, nullptr);
 				return;
 			}
+
 		}
 	}
 };
