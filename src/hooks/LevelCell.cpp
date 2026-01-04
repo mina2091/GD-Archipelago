@@ -1,6 +1,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/LevelCell.hpp>
 #include <Geode/binding/GJGameLevel.hpp>
+#include <regex>
 
 using namespace geode::prelude;
 
@@ -9,7 +10,7 @@ class $modify(APLevelCell, LevelCell) {
         LevelCell::loadFromLevel(level);
 
         // Only modify Archipelago levels
-        if (!level || level->m_creatorName != "Archipelago")
+        if (!level || !level->m_creatorName.starts_with("Level "))
             return;
 
         if (!m_mainLayer)
@@ -26,6 +27,24 @@ class $modify(APLevelCell, LevelCell) {
         auto oldSprite = dynamic_cast<cocos2d::CCSprite*>(
             difficultyContainer->getChildByID("difficulty-sprite")
         );
+
+        //Disable coin sprites
+        difficultyContainer->getChildByID("coin-icon-1")->setVisible(false);
+        difficultyContainer->getChildByID("coin-icon-2")->setVisible(false);
+        difficultyContainer->getChildByID("coin-icon-3")->setVisible(false);
+
+        //Disable downloads, likes, orbs
+        m_mainLayer->getChildByID("downloads-icon")->setVisible(false);
+        m_mainLayer->getChildByID("likes-icon")->setVisible(false);
+        m_mainLayer->getChildByID("orbs-icon")->setVisible(false);
+        m_mainLayer->getChildByID("downloads-label")->setVisible(false);
+        m_mainLayer->getChildByID("likes-label")->setVisible(false);
+        m_mainLayer->getChildByID("orbs-label")->setVisible(false);
+
+        //TODO: Use relative values when moving
+        //Move length to the left to leave space for progress bar
+        m_mainLayer->getChildByID("length-icon")->setPositionX(m_mainLayer->getChildByID("length-icon")->getPositionX() - 45);
+        m_mainLayer->getChildByID("length-label")->setPositionX(m_mainLayer->getChildByID("length-label")->getPositionX() - 45);
 
         if (!oldSprite)
             return;

@@ -174,7 +174,7 @@ GJGameLevel* APLayer::createLevelShell(const Level& ap) {
 	level->m_levelID = levelID;
 	level->m_levelName = ap.name;
 	level->m_levelType = GJLevelType::SearchResult;
-	level->m_creatorName = "Archipelago";
+	level->m_creatorName = fmt::format("Level {}", APConnection::IDtoLvl[levelID] + 1);
 	level->m_isUploaded = true;
 	level->m_isVerified = true;
 
