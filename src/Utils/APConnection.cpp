@@ -1,4 +1,3 @@
-
 #include "APConnection.hpp"
 #include "Archipelago.h"
 #include <../../lib/json.hpp>
@@ -6,6 +5,8 @@
 #include <vector>
 #include <random>
 #include <unordered_map>
+#include <numeric>
+#include <string>
 
 // for convenience
 using json = nlohmann::json;
@@ -120,17 +121,114 @@ std::vector<Level> APConnection::loadLevels(const std::string& path) {
     json j;
     file >> j;
 
+    if (!j.is_array()) {
+        throw std::runtime_error("levels.json: expected top-level array");
+    }
+
     std::vector<Level> levels;
     levels.reserve(j.size());
 
     for (const auto& entry : j) {
+        // Safe reads with sensible defaults
+        std::string name = "";
+        std::string id = "";
+        std::string difficulty = "";
+        int difficulty_id = 0;
+        int stars_amount = 0;
+        std::string song_ids = "";
+        int length = 0;
+
+        try {
+            if (entry.contains("name") && !entry["name"].is_null() && entry["name"].is_string()) {
+                name = entry["name"].get<std::string>();
+            }
+        } catch (const std::exception& e) {
+            geode::log::info("levels.json: invalid 'name' field, using empty string: {}", e.what());
+        }
+
+        try {
+            if (entry.contains("id") && !entry["id"].is_null() && entry["id"].is_string()) {
+                id = entry["id"].get<std::string>();
+            } else if (entry.contains("id") && !entry["id"].is_null() && entry["id"].is_number_integer()) {
+                id = std::to_string(entry["id"].get<int64_t>());
+            }
+        } catch (const std::exception& e) {
+            geode::log::info("levels.json: invalid 'id' field, skipping or using empty id: {}", e.what());
+        }
+
+        try {
+            if (entry.contains("difficulty") && !entry["difficulty"].is_null() && entry["difficulty"].is_string()) {
+                difficulty = entry["difficulty"].get<std::string>();
+            }
+        } catch (const std::exception& e) {
+            geode::log::info("levels.json: invalid 'difficulty' field, using empty string: {}", e.what());
+        }
+
+        try {
+            if (entry.contains("difficulty-id") && !entry["difficulty-id"].is_null()) {
+                if (entry["difficulty-id"].is_number_integer()) {
+                    difficulty_id = entry["difficulty-id"].get<int>();
+                } else if (entry["difficulty-id"].is_string()) {
+                    try {
+                        difficulty_id = std::stoi(entry["difficulty-id"].get<std::string>());
+                    } catch (...) {
+                        geode::log::info("levels.json: could not parse 'difficulty-id' string, defaulting to 0");
+                    }
+                }
+            }
+        } catch (const std::exception& e) {
+            geode::log::info("levels.json: invalid 'difficulty-id' field, defaulting to 0: {}", e.what());
+        }
+
+        try {
+            if (entry.contains("stars-amount") && !entry["stars-amount"].is_null()) {
+                if (entry["stars-amount"].is_number_integer()) {
+                    stars_amount = entry["stars-amount"].get<int>();
+                } else if (entry["stars-amount"].is_string()) {
+                    try {
+                        stars_amount = std::stoi(entry["stars-amount"].get<std::string>());
+                    } catch (...) {
+                        geode::log::info("levels.json: could not parse 'stars-amount' string, defaulting to 0");
+                    }
+                }
+            }
+        } catch (const std::exception& e) {
+            geode::log::info("levels.json: invalid 'stars-amount' field, defaulting to 0: {}", e.what());
+        }
+
+        try {
+            if (entry.contains("song-ids") && !entry["song-ids"].is_null() && entry["song-ids"].is_string()) {
+                song_ids = entry["song-ids"].get<std::string>();
+            }
+        } catch (const std::exception& e) {
+            geode::log::info("levels.json: invalid 'song-ids' field, using empty string: {}", e.what());
+        }
+
+        try {
+            if (entry.contains("length") && !entry["length"].is_null()) {
+                if (entry["length"].is_number_integer()) {
+                    length = entry["length"].get<int>();
+                } else if (entry["length"].is_string()) {
+                    try {
+                        length = std::stoi(entry["length"].get<std::string>());
+                    } catch (...) {
+                        geode::log::info("levels.json: could not parse 'length' string, defaulting to 0");
+                    }
+                }
+            }
+        } catch (const std::exception& e) {
+            geode::log::info("levels.json: invalid 'length' field, defaulting to 0: {}", e.what());
+        }
+
         levels.push_back(Level{
             0,
-            entry.at("name").get<std::string>(),
-            entry.at("id").get<std::string>(),
-            entry.at("difficulty").get<std::string>(),
-            entry.at("difficulty-id").get<int>(),
-            entry.at("stars-amount").get<int>()
+            name,
+            id,
+            difficulty,
+            difficulty_id,
+            stars_amount,
+            song_ids,
+            length
         });
     }
 
@@ -146,7 +244,9 @@ void APConnection::saveLevels(const std::vector<Level>& levels, const std::strin
             {"id", level.id},
             {"difficulty", level.difficulty},
             {"difficulty-id", level.difficulty_id},
-            {"stars-amount", level.stars_amount}
+            {"stars-amount", level.stars_amount},
+            {"song-ids", level.song_ids},
+            {"length", level.length}
         });
     }
 
@@ -178,11 +278,20 @@ void APConnection::buildIDTable(const std::vector<Level>& levels){
     IDtoLvl.clear();
 
     for (size_t i = 0; i < levels.size(); ++i){
-        int64_t id = std::stoll(levels[i].id);
-        lvlToID.push_back(id);
-
-        IDtoLvl[id] = static_cast<int64_t>(i);
-        geode::log::info("Register Level {} -> {}", i + 1, id);
+        const auto &levelIdStr = levels[i].id;
+        if (levelIdStr.empty()) {
+            geode::log::info("buildIDTable: skipping level {} because id is empty", i + 1);
+            continue;
+        }
+        try {
+            int64_t id = std::stoll(levelIdStr);
+            lvlToID.push_back(id);
+            IDtoLvl[id] = static_cast<int64_t>(i);
+            geode::log::info("Register Level {} -> {}", i + 1, id);
+        } catch (const std::exception& e) {
+            geode::log::info("buildIDTable: invalid numeric id for level {}: '{}', skipping: {}", i + 1, levelIdStr, e.what());
+            continue;
+        }
     }
 
     // lvlToID[0] = ID Level 1

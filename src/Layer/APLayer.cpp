@@ -183,6 +183,9 @@ GJGameLevel* APLayer::createLevelShell(const Level& ap) {
 	level->m_isEpic = false;          // set if you want epic glow
 	level->m_stars = ap.stars_amount;
 
+	//Determine level length 0 = tiny, 1 = short, 2 = medium, 3 = long, 4 = XL
+	level->m_levelLength = ap.length;
+
 	// Difficulty (important for face icon)
 	level->m_autoLevel = false;
 	level->m_rateFeature = true;
