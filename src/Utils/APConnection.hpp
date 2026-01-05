@@ -12,6 +12,7 @@ struct Level {
     int stars_amount;
     std::string song_ids;
     int length;
+    bool isPlatformer;
 };
 
 namespace APConnection {

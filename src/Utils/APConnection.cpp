@@ -15,7 +15,7 @@ using json = nlohmann::json;
 //idk if they need to be "= 0" but it works so whatever
 auto ap_min_diff = 0;
 auto ap_max_diff = 0;
-auto ap_level_amount = 20; //test value for now
+auto ap_level_amount = 100; //test value for now
 auto ap_goal_amount = 0;
 auto ap_checks_per_level = 0;
 auto ap_starting_level_amount = 0;
@@ -102,8 +102,19 @@ std::vector<Level> APConnection::pickRandomLevels(const std::vector<Level>& allL
     std::mt19937 rng(rd());
     std::shuffle(indices.begin(), indices.end(), rng);
 
-    for (std::size_t i = 0; i < ap_level_amount; ++i) {
+    /*for (std::size_t i = 0; i < ap_level_amount; ++i) {
         result.push_back(allLevels[indices[i]]);
+    }*/
+
+    //Only add non-platformer levels
+    std::size_t i = 0;
+    std::size_t validAmount = 0;
+    while (validAmount < ap_level_amount) {
+        if (!allLevels[indices[i]].isPlatformer) {
+            result.push_back(allLevels[indices[i]]);
+            validAmount++;
+        }
+        i++;
     }
 
     APConnection::buildIDTable(result);
@@ -137,6 +148,7 @@ std::vector<Level> APConnection::loadLevels(const std::string& path) {
         int stars_amount = 0;
         std::string song_ids = "";
         int length = 0;
+        bool isPlatformer = false;
 
         try {
             if (entry.contains("name") && !entry["name"].is_null() && entry["name"].is_string()) {
@@ -220,6 +232,22 @@ std::vector<Level> APConnection::loadLevels(const std::string& path) {
             geode::log::info("levels.json: invalid 'length' field, defaulting to 0: {}", e.what());
         }
 
+        try {
+            if (entry.contains("platformer") && !entry["platformer"].is_null()) {
+                if (entry["platformer"].is_boolean()) {
+                    isPlatformer = entry["platformer"].get<bool>();
+                } else if (entry["platformer"].is_string()) {
+                    try {
+                        isPlatformer = std::stoi(entry["platformer"].get<std::string>());
+                    } catch (...) {
+                        geode::log::info("levels.json: could not parse 'platformer' string, defaulting to false");
+                    }
+                }
+            }
+        } catch (const std::exception& e) {
+            geode::log::info("levels.json: invalid 'platformer' field, defaulting to false", e.what());
+        }
+
         levels.push_back(Level{
             0,
             name,
@@ -228,7 +256,8 @@ std::vector<Level> APConnection::loadLevels(const std::string& path) {
             difficulty_id,
             stars_amount,
             song_ids,
-            length
+            length,
+            isPlatformer
         });
     }
 
@@ -246,7 +275,8 @@ void APConnection::saveLevels(const std::vector<Level>& levels, const std::strin
             {"difficulty-id", level.difficulty_id},
             {"stars-amount", level.stars_amount},
             {"song-ids", level.song_ids},
-            {"length", level.length}
+            {"length", level.length},
+            {"platformer", level.isPlatformer}
         });
     }
 
