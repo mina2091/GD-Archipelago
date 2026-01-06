@@ -16,6 +16,7 @@ using namespace geode::prelude;
 extern bool logged_in;
 
 bool APLayer::init() {
+
     if (!CCLayer::init())
         return false;
 
@@ -79,30 +80,81 @@ bool APLayer::init() {
 
 	//Build CCArray for CustomListView
 	auto levelArray = CCArray::create();
+	std::vector<Level> m_apLevels;
 
 	for (const auto& apLevel : APConnection::randomLevels) {
+		GJGameLevel* gjObject = createLevelShell(apLevel);
 		levelArray->addObject(
-			createLevelShell(apLevel)
+			gjObject
 		);
+		m_apLevels.push_back(apLevel);
 	}
 
     //List of available Archipelago Levels
-    auto listLayer = GJListLayer::create(
-        CustomListView::create(
-            levelArray,
-            BoomListType::Level,
-            226.0f,
-            356.0f
-        ),
-        "archipelago level list",
-        {172,121,202},
-        356.0f,
-        226.0f,
-        0
-    );
+	auto listView = CustomListView::create(
+	levelArray,
+	BoomListType::Level,
+	226.0f,
+	356.0f
+);
+
+	auto listLayer = GJListLayer::create(
+		listView,
+		"archipelago level list",
+		{172,121,202},
+		356.0f,
+		226.0f,
+		0
+	);
+
+	this->addChild(listLayer);
+
 	listLayer->setZOrder(2);
 	listLayer->setPosition(size/2 - listLayer->getContentSize()/2);
     this->addChild(listLayer);
+
+
+	auto tableView = listView->m_tableView;
+	auto content = tableView->m_contentLayer;
+	auto gsm = GameStatsManager::sharedState();
+
+
+	auto childrenInContent = CCArrayExt<CCNode*>(content->getChildren());
+
+	for (int i = 0; i < APConnection::getLevelAmount(); i++) {
+
+		auto levelCell = typeinfo_cast<LevelCell*>(childrenInContent[i]);
+		if (!levelCell) continue;
+
+		auto apBarPlayed =
+			typeinfo_cast<ProgressBar*>(levelCell->getChildByID("ap-progress-bar-played"));
+		auto apBarUnlocked =
+			typeinfo_cast<ProgressBar*>(levelCell->getChildByID("ap-progress-bar-unlocked"));
+
+		if (!apBarPlayed) continue;
+
+		std::string key = "n_" + m_apLevels[i].id;
+		int percent = GameStatsManager::sharedState()->getStat(key.c_str());
+
+		std::string percentageAsString = std::to_string(percent);
+
+		if (percent>0)
+		{
+			while (true)
+			{
+				Notification::create(
+				percentageAsString,
+				NotificationIcon::Success
+				)->show();
+			}
+		}
+
+		apBarPlayed->updateProgress(percent);
+		apBarUnlocked->updateProgress(m_apLevels[i].ap_progress);
+	}
+
+
+
 
 	//log out button
 	auto logOutButton = CCMenuItemSpriteExtra::create(

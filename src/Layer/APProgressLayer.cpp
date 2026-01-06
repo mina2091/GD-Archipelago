@@ -51,39 +51,36 @@ bool APProgressLayer::init() {
 
 	//creates Progressbars to read of the done or still open percentages of levels
     cocos2d::ccColor3B colorUnlockable = { 20, 20, 20 };
+    cocos2d::ccColor3B colorUnlocked = { 70, 70, 70 };
+    cocos2d::ccColor3B colorPlayed = { 0, 255, 0 };
 
     auto progressBarUnlockable = ProgressBar::create();
     progressBarUnlockable->setPosition({
         CCDirector::sharedDirector()->getWinSize().width / 3,
         CCDirector::sharedDirector()->getWinSize().height / 3
         });
-
     progressBarUnlockable->setFillColor(colorUnlockable);
     progressBarUnlockable->updateProgress(100.0f); // Beispielwert
     progressBarUnlockable->setID("ap-progress-bar-unlock");
     this->addChild(progressBarUnlockable);
 
-	cocos2d::ccColor3B colorUnlocked = { 70, 70, 70 };
 
     auto progressBarUnlocked = ProgressBar::create();
     progressBarUnlocked->setPosition({
         CCDirector::sharedDirector()->getWinSize().width / 3,
         CCDirector::sharedDirector()->getWinSize().height / 3
         });
-
 	progressBarUnlocked->setFillColor(colorUnlocked);
-    progressBarUnlocked->updateProgress(80.0f); // Beispielwert
+    progressBarUnlocked->updateProgress(80); // Beispielwert
     progressBarUnlocked->setID("ap-progress-bar-unlock");
     this->addChild(progressBarUnlocked);
 
-    cocos2d::ccColor3B colorPlayed = { 0, 255, 0 };
 
     auto progressBarPlayed = ProgressBar::create();
     progressBarPlayed->setPosition({
         CCDirector::sharedDirector()->getWinSize().width / 3,
         CCDirector::sharedDirector()->getWinSize().height / 3
         });
-
     progressBarPlayed->setFillColor(colorPlayed);
     progressBarPlayed->updateProgress(20.0f); // Beispielwert
     progressBarPlayed->setID("ap-progress-bar-unlock");
