@@ -30,6 +30,8 @@ namespace APConnection {
     void setChecksPerLevel(int i);
     void setStartingLevelAmount(int i);
 
+    int getLevelAmount();
+
     void worldInputInit();                  //init from world
 
     void clearItemCallback();

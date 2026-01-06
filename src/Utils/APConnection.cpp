@@ -39,6 +39,11 @@ void APConnection::clearItemCallback() {
     geode::log::info("APConnection::clearItemCallback");
 }
 
+int APConnection::getLevelAmount()
+{
+    return ap_level_amount;
+}
+
 void APConnection::itemReceivedCallback(int64_t id, bool notify) {
     geode::log::info("Received Item ID: {}", id);
 
