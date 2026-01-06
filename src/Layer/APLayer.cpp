@@ -186,6 +186,34 @@ GJGameLevel* APLayer::createLevelShell(const Level& ap) {
 	//Determine level length 0 = tiny, 1 = short, 2 = medium, 3 = long, 4 = XL
 	level->m_levelLength = ap.length;
 
+	//Helper: extract first contiguous number from a string
+	auto extract_first_number = [](const std::string& s) -> int {
+		for (size_t i = 0; i < s.size(); ++i) {
+			if (std::isdigit(static_cast<unsigned char>(s[i]))) {
+				size_t j = i;
+				while (j < s.size() && std::isdigit(static_cast<unsigned char>(s[j]))) ++j;
+				try {
+					return std::stoi(s.substr(i, j - i));
+				} catch (...) {
+					break;
+				}
+			}
+		}
+		geode::log::info("APLayer::createLevelShell: no numeric song id found in '{}', defaulting to 0", s);
+		return 0;
+	};
+
+	//Assert correct song id(s) audioTrack = official song, songID = custom song
+	//TODO: add songs for levels with multiple songs
+	if (ap.song_ids.starts_with("Multiple")) {
+
+	} else if (ap.song_ids.starts_with("Official")) {
+		int audioTrack = extract_first_number(ap.song_ids);
+		level->m_audioTrack = audioTrack - 1;
+	} else {
+		level->m_songID = std::stoi(ap.song_ids);
+	}
+
 	// Difficulty (important for face icon)
 	level->m_autoLevel = false;
 	level->m_rateFeature = true;
