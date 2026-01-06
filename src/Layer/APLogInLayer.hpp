@@ -32,4 +32,7 @@ protected:
 	CCTextInputNode* inputTxtPassword = nullptr;
 
 	bool inputLocalhost = false;
+
+    // scheduled check for init completion
+    void checkInit(float dt);
 };

@@ -12,6 +12,7 @@
 #include <Geode/cocos/menu_nodes/CCMenuItem.h>
 #include <Geode/cocos/label_nodes/CCLabelBMFont.h>
 #include <Geode/binding/CCMenuItemToggler.hpp>
+#include <thread>
 
 #include <Archipelago.h>
 #include "APLogInLayer.hpp"
@@ -180,15 +181,6 @@ bool APLogInLayer::init() {
     
 	//TEMP
 
-    auto levelsPath = geode::Mod::get()->getResourcesDir() / "levels.json";
-
-    auto allLevels = APConnection::loadLevels(levelsPath.string());
-    APConnection::randomLevels = APConnection::pickRandomLevels(allLevels);
-
-    auto outPath = geode::Mod::get()->getSaveDir() / "randomLevels.json";
-    APConnection::saveLevels(APConnection::randomLevels, outPath.string());
-    log::info("Saved random levels to: {}", outPath.string());
-
     return true;
 }
 
@@ -243,17 +235,25 @@ void APLogInLayer::onClickConnectButton(CCObject* btn) {
     AP_SetItemClearCallback(&APConnection::clearItemCallback);
     AP_SetItemRecvCallback(&APConnection::itemReceivedCallback);
     AP_SetLocationCheckedCallback(&APConnection::locationCheckedCallback);
+
+    // register slot callbacks BEFORE starting the client so slot data is delivered to our callbacks
     APConnection::worldInputInit();
+
     AP_Start();
 
+    // initOnConnect will perform background registration and set an internal flag when done.
+    APConnection::initOnConnect();
 
-    //auto msg = fmt::format("Port: {}\nName: {}\nPassword: {}", port, slotName, password);
+    // schedule a UI-thread check to open APLayer once initOnConnect finished.
+    // check every 0.1s; the scheduled callback runs on the main thread.
+    this->schedule(schedule_selector(APLogInLayer::checkInit), 0.1f);
+}
 
-    /*FLAlertLayer::create(
-        "Connecting",
-        msg.c_str(),
-        "OK"
-    )->show();*/
+void APLogInLayer::checkInit(float dt) {
+    if (APConnection::isInitComplete()) {
+        this->unschedule(schedule_selector(APLogInLayer::checkInit));
+        APLayer::create()->show();
+    }
 }
 
 void APLogInLayer::onClickArchiHostButton(CCObject* btn) {

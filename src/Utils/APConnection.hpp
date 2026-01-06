@@ -2,6 +2,9 @@
 #ifndef GD_ARCHIPELAGO_APCONNECTION_H
 #define GD_ARCHIPELAGO_APCONNECTION_H
 
+#include <vector>
+#include <string>
+#include <unordered_map>
 
 struct Level {
     int ap_progress;
@@ -40,6 +43,9 @@ namespace APConnection {
 	int64_t getProgressFromID(int64_t ap_id);
 
     void buildIDTable(const std::vector<Level>& levels);
+
+    void initOnConnect();
+    bool isInitComplete(); // returns true when initOnConnect finished
 
     //TEMP
     extern std::vector<Level> randomLevels;
