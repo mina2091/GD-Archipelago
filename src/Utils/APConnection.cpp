@@ -13,8 +13,8 @@ using json = nlohmann::json;
 
 //data needed from .yaml
 //idk if they need to be "= 0" but it works so whatever
-auto ap_min_diff = 0;
-auto ap_max_diff = 0;
+auto ap_min_diff = 1;
+auto ap_max_diff = 1;
 auto ap_level_amount = 100; //test value for now
 auto ap_goal_amount = 0;
 auto ap_checks_per_level = 0;
@@ -111,7 +111,8 @@ std::vector<Level> APConnection::pickRandomLevels(const std::vector<Level>& allL
     std::size_t validAmount = 0;
     while (validAmount < ap_level_amount) {
         if (!allLevels[indices[i]].isPlatformer
-            && allLevels[indices[i]].difficulty_id <= 1 //TODO: Nach dem Debuggen entfernen, weil Schwierigkeit permanent Einfach ist.
+            && allLevels[indices[i]].difficulty_id >= ap_min_diff
+            && allLevels[indices[i]].difficulty_id <= ap_max_diff
             ) {
             result.push_back(allLevels[indices[i]]);
             validAmount++;
