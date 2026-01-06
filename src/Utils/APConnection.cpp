@@ -7,12 +7,14 @@
 #include <unordered_map>
 #include <numeric>
 #include <string>
+#include <atomic>
+#include <thread>
+#include <chrono>
 
 // for convenience
 using json = nlohmann::json;
 
 //data needed from .yaml
-//idk if they need to be "= 0" but it works so whatever
 auto ap_min_diff = 1;
 auto ap_max_diff = 1;
 auto ap_level_amount = 100; //test value for now
@@ -24,6 +26,13 @@ auto ap_percentage_for_check = 20; //test value for now
 namespace APConnection {
     std::vector<int64_t> lvlToID;
     std::unordered_map<int64_t, int64_t> IDtoLvl;
+}
+
+// local flags for slot data arrival and init completion
+namespace {
+    std::atomic<bool> g_min_received{false};
+    std::atomic<bool> g_max_received{false};
+    std::atomic<bool> g_init_done{false};
 }
 
 void APConnection::clearItemCallback() {
@@ -52,10 +61,14 @@ void APConnection::locationCheckedCallback(int64_t id) {
 //convert into local variables
 void APConnection::setMinDiff(int i){
     ap_min_diff = i;
+    g_min_received.store(true);
+    geode::log::info("ap_min_diff: {}", i);
 }
 
 void APConnection::setMaxDiff(int i){
     ap_max_diff = i;
+    g_max_received.store(true);
+    geode::log::info("ap_max_diff: {}", i);
 }
 
 void APConnection::setLevelAmount(int i){
@@ -102,22 +115,31 @@ std::vector<Level> APConnection::pickRandomLevels(const std::vector<Level>& allL
     std::mt19937 rng(rd());
     std::shuffle(indices.begin(), indices.end(), rng);
 
-    /*for (std::size_t i = 0; i < ap_level_amount; ++i) {
-        result.push_back(allLevels[indices[i]]);
-    }*/
-
-    //Only add non-platformer levels
     std::size_t i = 0;
     std::size_t validAmount = 0;
-    while (validAmount < ap_level_amount) {
-        if (!allLevels[indices[i]].isPlatformer
-            && allLevels[indices[i]].difficulty_id >= ap_min_diff
-            && allLevels[indices[i]].difficulty_id <= ap_max_diff
+    while (validAmount < static_cast<std::size_t>(ap_level_amount) && i < indices.size()) {
+        const auto &cand = allLevels[indices[i]];
+        if (!cand.isPlatformer
+            && cand.difficulty_id >= ap_min_diff
+            && cand.difficulty_id <= ap_max_diff
             ) {
-            result.push_back(allLevels[indices[i]]);
+            result.push_back(cand);
             validAmount++;
         }
-        i++;
+        ++i;
+    }
+
+    // If not enough, fill with any remaining without duplicates
+    if (result.size() < static_cast<std::size_t>(ap_level_amount)) {
+        geode::log::info("pickRandomLevels: only {} matching levels found, filling with remaining", result.size());
+        for (std::size_t idx = 0; idx < indices.size() && result.size() < static_cast<std::size_t>(ap_level_amount); ++idx) {
+            const auto &cand = allLevels[indices[idx]];
+            bool already = false;
+            for (const auto &r : result) {
+                if (r.id == cand.id) { already = true; break; }
+            }
+            if (!already) result.push_back(cand);
+        }
     }
 
     APConnection::buildIDTable(result);
@@ -332,6 +354,43 @@ void APConnection::buildIDTable(const std::vector<Level>& levels){
 
     // IDToLvl[12345] = 1
     // IDToLvl[73263] = 2
+}
+
+void APConnection::initOnConnect() {
+    // run registration on a background thread and wait for min/max slot data before registering
+    g_init_done.store(false);
+    std::thread([]() {
+        geode::log::info("APConnection::initOnConnect: waiting for slot data (min/max) before registering levels...");
+        using namespace std::chrono_literals;
+        auto start = std::chrono::steady_clock::now();
+        const auto timeout = 5s;
+
+        while (!(g_min_received.load() && g_max_received.load())) {
+            if (std::chrono::steady_clock::now() - start > timeout) {
+                geode::log::info("APConnection::initOnConnect: timeout waiting for slot data, proceeding anyway");
+                break;
+            }
+            std::this_thread::sleep_for(100ms);
+        }
+
+        try {
+            auto levelsPath = geode::Mod::get()->getResourcesDir() / "levels.json";
+            auto allLevels = loadLevels(levelsPath.string());
+            randomLevels = pickRandomLevels(allLevels);
+
+            auto outPath = geode::Mod::get()->getSaveDir() / "randomLevels.json";
+            saveLevels(randomLevels, outPath.string());
+            geode::log::info("Saved random levels to: {}", outPath.string());
+        } catch (const std::exception& e) {
+            geode::log::info("APConnection::initOnConnect: failed to initialize levels: {}", e.what());
+        }
+
+        g_init_done.store(true);
+    }).detach();
+}
+
+bool APConnection::isInitComplete() {
+    return g_init_done.load();
 }
 
 //TEMP to avoid linker error for global variable
