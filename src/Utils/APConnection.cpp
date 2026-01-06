@@ -110,7 +110,9 @@ std::vector<Level> APConnection::pickRandomLevels(const std::vector<Level>& allL
     std::size_t i = 0;
     std::size_t validAmount = 0;
     while (validAmount < ap_level_amount) {
-        if (!allLevels[indices[i]].isPlatformer) {
+        if (!allLevels[indices[i]].isPlatformer
+            && allLevels[indices[i]].difficulty_id <= 1 //TODO: Nach dem Debuggen entfernen, weil Schwierigkeit permanent Einfach ist.
+            ) {
             result.push_back(allLevels[indices[i]]);
             validAmount++;
         }
