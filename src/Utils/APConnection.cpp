@@ -388,13 +388,11 @@ void APConnection::initOnConnect() {
             try {
                 AP_RoomInfo roomInfo{};
                 AP_GetRoomInfo(&roomInfo);
-                auto ap_UUID = "schmockID";
-                auto playerID = "PlayerID";
-                auto oldLevels = fmt::format("{}{}.json",ap_UUID, playerID);
-                auto outPath = geode::Mod::get()->getSaveDir() / oldLevels;
                 auto seed = roomInfo.seed_name;
+                auto oldLevels = fmt::format("{}.json",seed);
+                auto outPath = geode::Mod::get()->getSaveDir() / oldLevels;
 
-                log::info("Room Info Stuff:", seed);
+                log::info("Seed: {}", seed);
                 //if there's no save data for this multiworld create new randomized levels
                 if (!std::filesystem::exists(outPath)) {
 
@@ -404,7 +402,7 @@ void APConnection::initOnConnect() {
                     auto allLevels = loadLevels(levelsPath.string());
                     randomLevels = pickRandomLevels(allLevels);
 
-                    auto savedLevels = fmt::format("{}{}.json",ap_UUID, playerID);
+                    auto savedLevels = fmt::format("{}.json",seed);
                     auto savePath = geode::Mod::get()->getSaveDir() / savedLevels;
 
                     saveLevels(randomLevels, savePath.string());
