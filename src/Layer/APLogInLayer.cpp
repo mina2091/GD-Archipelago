@@ -241,6 +241,7 @@ void APLogInLayer::onClickConnectButton(CCObject* btn) {
 
     AP_Start();
 
+    geode::log::info("Before initOnConnect: {}", APConnection::isInitComplete());
     // initOnConnect will perform background registration and set an internal flag when done.
     APConnection::initOnConnect();
 
@@ -250,9 +251,32 @@ void APLogInLayer::onClickConnectButton(CCObject* btn) {
 }
 
 void APLogInLayer::checkInit(float dt) {
+    // first, success
     if (APConnection::isInitComplete()) {
         this->unschedule(schedule_selector(APLogInLayer::checkInit));
+        geode::log::info("After initOnConnect: {}", APConnection::isInitComplete());
         APLayer::create()->show();
+        return;
+    }
+
+    // then timeout: show alert and restore login state
+    if (APConnection::isInitTimedOut()) {
+        this->unschedule(schedule_selector(APLogInLayer::checkInit));
+
+        // perform cleanup so a later reconnect is possible
+        APConnection::resetAfterTimeout();
+
+        // reset login flag so app returns to login state
+        extern bool logged_in;
+        logged_in = false;
+
+        // show alert on main thread (we are already on main thread because scheduler runs there)
+        FLAlertLayer::create(
+            "Archipelago: Timeout",
+            "Please try again",
+            "OK"
+        )->show();
+        return;
     }
 }
 
@@ -272,7 +296,11 @@ void APLogInLayer::connectSuccess() {
 */
 
 void APLogInLayer::tempProgressLayerClick(CCObject* btn) {
-    APProgressLayer::create()->show();
+    FLAlertLayer::create(
+                "Error",
+                "Connection timed out",
+                "OK"
+                )->show();
 }
 
 void APLogInLayer::tempAPLayerClick(CCObject* btn) {

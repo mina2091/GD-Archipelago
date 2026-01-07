@@ -48,6 +48,8 @@ namespace APConnection {
 
     void initOnConnect();
     bool isInitComplete(); // returns true when initOnConnect finished
+    bool isInitTimedOut(); // true if initOnConnect timed out
+	void resetAfterTimeout(); // cleanup after timeout so reconnect can be attempted
 
     //TEMP
     extern std::vector<Level> randomLevels;

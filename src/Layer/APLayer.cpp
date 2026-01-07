@@ -11,6 +11,8 @@
 #include "APProgressLayer.hpp"
 #include "APLayer.hpp"
 
+#include "Archipelago.h"
+
 using namespace geode::prelude;
 
 extern bool logged_in;
@@ -205,6 +207,7 @@ void APLayer::onButtonClickPop(CCObject* btn) {
 
 void APLayer::onLogOutButtonClick(CCObject* btn) {
 	logged_in = false;
+	APConnection::resetAfterTimeout();
 	auto director = CCDirector::sharedDirector();
 	director->popSceneWithTransition(
 		.5f, PopTransition::kPopTransitionFade

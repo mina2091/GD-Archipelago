@@ -11,6 +11,8 @@
 #include <thread>
 #include <chrono>
 
+#include "../Layer/APLogInLayer.hpp"
+
 // for convenience
 using json = nlohmann::json;
 
@@ -33,6 +35,7 @@ namespace {
     std::atomic<bool> g_min_received{false};
     std::atomic<bool> g_max_received{false};
     std::atomic<bool> g_init_done{false};
+    std::atomic<bool> g_init_timedout{false};
 }
 
 void APConnection::clearItemCallback() {
@@ -364,38 +367,75 @@ void APConnection::buildIDTable(const std::vector<Level>& levels){
 void APConnection::initOnConnect() {
     // run registration on a background thread and wait for min/max slot data before registering
     g_init_done.store(false);
+    g_init_timedout.store(false);
     std::thread([]() {
         geode::log::info("APConnection::initOnConnect: waiting for slot data (min/max) before registering levels...");
         using namespace std::chrono_literals;
         auto start = std::chrono::steady_clock::now();
         const auto timeout = 5s;
+        bool noTimeout = true;
 
         while (!(g_min_received.load() && g_max_received.load())) {
             if (std::chrono::steady_clock::now() - start > timeout) {
-                geode::log::info("APConnection::initOnConnect: timeout waiting for slot data, proceeding anyway");
+                geode::log::info("APConnection::initOnConnect: timeout waiting for slot data, signalling timeout to main thread");
+                noTimeout = false;
+                g_init_timedout.store(true);
                 break;
             }
             std::this_thread::sleep_for(100ms);
         }
+        if (noTimeout) {
+            try {
+                auto levelsPath = geode::Mod::get()->getResourcesDir() / "levels.json";
+                auto allLevels = loadLevels(levelsPath.string());
+                randomLevels = pickRandomLevels(allLevels);
 
-        try {
-            auto levelsPath = geode::Mod::get()->getResourcesDir() / "levels.json";
-            auto allLevels = loadLevels(levelsPath.string());
-            randomLevels = pickRandomLevels(allLevels);
-
-            auto outPath = geode::Mod::get()->getSaveDir() / "randomLevels.json";
-            saveLevels(randomLevels, outPath.string());
-            geode::log::info("Saved random levels to: {}", outPath.string());
-        } catch (const std::exception& e) {
-            geode::log::info("APConnection::initOnConnect: failed to initialize levels: {}", e.what());
+                auto outPath = geode::Mod::get()->getSaveDir() / "randomLevels.json";
+                saveLevels(randomLevels, outPath.string());
+                geode::log::info("Saved random levels to: {}", outPath.string());
+            } catch (const std::exception& e) {
+                geode::log::info("APConnection::initOnConnect: failed to initialize levels: {}", e.what());
+            }
+            g_init_done.store(true);
         }
-
-        g_init_done.store(true);
     }).detach();
 }
 
 bool APConnection::isInitComplete() {
     return g_init_done.load();
+}
+
+bool APConnection::isInitTimedOut() {
+    return g_init_timedout.load();
+}
+
+void APConnection::resetAfterTimeout() {
+    geode::log::info("APConnection::resetAfterTimeout: cleaning up after timeout...");
+
+    // try to stop the client if possible
+    try {
+        AP_Shutdown();
+    } catch (...) {
+        geode::log::info("APConnection::resetAfterTimeout: AP_Shutdown threw or not available");
+    }
+
+    // unregister callbacks (set to nullptr)
+    try { AP_SetItemClearCallback(nullptr); } catch (...) {}
+    try { AP_SetItemRecvCallback(nullptr); } catch (...) {}
+    try { AP_SetLocationCheckedCallback(nullptr); } catch (...) {}
+
+    // reset internal flags
+    g_min_received.store(false);
+    g_max_received.store(false);
+    g_init_done.store(false);
+    g_init_timedout.store(false);
+
+    // clear registration tables so re-init starts fresh
+    lvlToID.clear();
+    IDtoLvl.clear();
+    randomLevels.clear();
+
+    geode::log::info("APConnection::resetAfterTimeout: cleanup complete");
 }
 
 //TEMP to avoid linker error for global variable
