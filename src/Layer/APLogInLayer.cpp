@@ -154,32 +154,20 @@ bool APLogInLayer::init() {
 
     this->addChild(hostTextLocation);
 
-
     //TEMP
-
-    auto apLayerBtn = CCMenuItemSpriteExtra::create(
-        CCSprite::createWithSpriteFrameName("GJ_arrow_01_001.png"),
+    auto tempConnectButton = CCMenuItemSpriteExtra::create(
+        CCSprite::create("gd-logo.png"_spr),
         this,
-        menu_selector(APLogInLayer::tempAPLayerClick)
+        menu_selector(APLogInLayer::onClickConnectButtonTemp)
     );
-    auto tmp1 = CCMenu::create();
-    tmp1->setPosition({ 75, CCDirector::sharedDirector()->getWinSize().height - 125 });
-    tmp1->addChild(apLayerBtn);
-	tmp1->setID("top-left-temp-ap-layer-btn");
-    this->addChild(tmp1);
 
-    auto progLayerBtn = CCMenuItemSpriteExtra::create(
-        CCSprite::createWithSpriteFrameName("GJ_arrow_02_001.png"),
-        this,
-        menu_selector(APLogInLayer::tempProgressLayerClick)
-    );
-    auto tmp2 = CCMenu::create();
-    tmp2->setPosition({ 505, CCDirector::sharedDirector()->getWinSize().height - 125 });
-    tmp2->addChild(progLayerBtn);
-	tmp2->setID("top-left-temp-prog-layer-btn");
-    this->addChild(tmp2);
-    
-	//TEMP
+	auto tempConnectButtonLocation = CCMenu::create();
+	tempConnectButtonLocation->addChild(tempConnectButton);
+	tempConnectButtonLocation->setPosition({ CCDirector::sharedDirector()->getWinSize().width - 50, 150 });
+	tempConnectButtonLocation->setID("temp-connect-button");
+	
+    this->addChild(tempConnectButtonLocation);
+    //TEMP
 
     return true;
 }
@@ -289,20 +277,37 @@ void APLogInLayer::onClickArchiHostButton(CCObject* btn) {
     }
 }
 
-/*
-void APLogInLayer::connectSuccess() {
-    // goto main screen
-}
-*/
+//TEMP
+void APLogInLayer::onClickConnectButtonTemp(CCObject* btn) {
 
-void APLogInLayer::tempProgressLayerClick(CCObject* btn) {
-    FLAlertLayer::create(
-                "Error",
-                "Connection timed out",
-                "OK"
-                )->show();
-}
+    std::string portStr = this->inputTxtPort->getString();
+    std::string slotNameStr = this->inputTxtName->getString();
+    std::string passwordStr = this->inputTxtPassword->getString();
 
-void APLogInLayer::tempAPLayerClick(CCObject* btn) {
-    APLayer::create()->show();
+    logged_in = true;
+
+    //AP Init
+    const char* host = "localhost:38281";
+    const char* gameName = "Geometry Dash";
+    const char* slotName = "Player1";
+    const char* password = "";
+
+    AP_Init(host, gameName, slotName, password);
+    AP_SetItemClearCallback(&APConnection::clearItemCallback);
+    AP_SetItemRecvCallback(&APConnection::itemReceivedCallback);
+    AP_SetLocationCheckedCallback(&APConnection::locationCheckedCallback);
+
+    // register slot callbacks BEFORE starting the client so slot data is delivered to our callbacks
+    APConnection::worldInputInit();
+
+    AP_Start();
+
+    geode::log::info("Before initOnConnect: {}", APConnection::isInitComplete());
+    // initOnConnect will perform background registration and set an internal flag when done.
+    APConnection::initOnConnect();
+
+    // schedule a UI-thread check to open APLayer once initOnConnect finished.
+    // check every 0.1s; the scheduled callback runs on the main thread.
+    this->schedule(schedule_selector(APLogInLayer::checkInit), 0.1f);
 }
+//TEMP

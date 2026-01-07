@@ -16,9 +16,7 @@ public:
 
     void onBackButtonClick(CCObject* btn);
 	void onClickConnectButton(CCObject* btn);
-
-    void tempProgressLayerClick(CCObject* btn);
-    void tempAPLayerClick(CCObject* btn);
+	void onClickConnectButtonTemp(CCObject* btn);
 
 	void onClickArchiHostButton(CCObject* btn);
 	//void connnectSuccess();

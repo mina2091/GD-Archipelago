@@ -17,7 +17,7 @@ class $modify(menu, CreatorLayer) {
 
 		auto bottomLeftMenu = this->getChildByID("bottom-left-menu");
 		auto apButton = CCMenuItemSpriteExtra::create(
-			CCSprite::create("archi_shadow.png"_spr),
+			CircleButtonSprite::createWithSprite("archi_shadow.png"_spr, 1.2f),
 			this,
 			menu_selector(menu::onAPButtonClick)
 		);
