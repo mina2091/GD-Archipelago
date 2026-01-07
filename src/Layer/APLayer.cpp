@@ -11,11 +11,17 @@
 #include "APProgressLayer.hpp"
 #include "APLayer.hpp"
 
+#include <json/value.h>
+
 #include "Archipelago.h"
 
 using namespace geode::prelude;
 
+#include "../hooks/LevelCell.cpp"
+
 extern bool logged_in;
+
+CustomListView* m_listView = nullptr;
 
 bool APLayer::init() {
 
@@ -62,7 +68,7 @@ bool APLayer::init() {
 	topRightMenu->setZOrder(2);
 	topRightMenu->setID("top-right-menu");
 	this->addChild(topRightMenu);
-    
+
 
     //Bottom Right Menu for Stats Scene
 	auto bottomRightMenu = CCMenu::create();
@@ -82,14 +88,12 @@ bool APLayer::init() {
 
 	//Build CCArray for CustomListView
 	auto levelArray = CCArray::create();
-	std::vector<Level> m_apLevels;
 
 	for (const auto& apLevel : APConnection::randomLevels) {
 		GJGameLevel* gjObject = createLevelShell(apLevel);
 		levelArray->addObject(
 			gjObject
 		);
-		m_apLevels.push_back(apLevel);
 	}
 
     //List of available Archipelago Levels
@@ -100,6 +104,8 @@ bool APLayer::init() {
 	356.0f
 );
 
+	m_listView = listView;
+
 	auto listLayer = GJListLayer::create(
 		listView,
 		"archipelago level list",
@@ -109,54 +115,9 @@ bool APLayer::init() {
 		0
 	);
 
-	this->addChild(listLayer);
-
 	listLayer->setZOrder(2);
 	listLayer->setPosition(size/2 - listLayer->getContentSize()/2);
     this->addChild(listLayer);
-
-
-	auto tableView = listView->m_tableView;
-	auto content = tableView->m_contentLayer;
-	auto gsm = GameStatsManager::sharedState();
-
-
-	auto childrenInContent = CCArrayExt<CCNode*>(content->getChildren());
-
-	for (int i = 0; i < APConnection::getLevelAmount(); i++) {
-
-		auto levelCell = typeinfo_cast<LevelCell*>(childrenInContent[i]);
-		if (!levelCell) continue;
-
-		auto apBarPlayed =
-			typeinfo_cast<ProgressBar*>(levelCell->getChildByID("ap-progress-bar-played"));
-		auto apBarUnlocked =
-			typeinfo_cast<ProgressBar*>(levelCell->getChildByID("ap-progress-bar-unlocked"));
-
-		if (!apBarPlayed) continue;
-
-		std::string key = "n_" + m_apLevels[i].id;
-		int percent = GameStatsManager::sharedState()->getStat(key.c_str());
-
-		std::string percentageAsString = std::to_string(percent);
-
-		if (percent>0)
-		{
-			while (true)
-			{
-				Notification::create(
-				percentageAsString,
-				NotificationIcon::Success
-				)->show();
-			}
-		}
-
-		apBarPlayed->updateProgress(percent);
-		apBarUnlocked->updateProgress(m_apLevels[i].ap_progress);
-	}
-
-
-
 
 	//log out button
 	auto logOutButton = CCMenuItemSpriteExtra::create(
@@ -172,10 +133,61 @@ bool APLayer::init() {
 	logOutButtonLocation->setID("log-out-button-buttom-left");
 	this->addChild(logOutButtonLocation);
 
+	this->scheduleOnce(
+	schedule_selector(APLayer::updateAPCells),
+	2.0f
+	);
+
     return true;
 }
 
-void APLayer::show() {
+
+void APLayer::updateAPCells(float f)
+{
+
+	if (!m_listView) return;
+
+	auto table = m_listView->m_tableView;
+	if (!table) return;
+
+	auto content = table->m_contentLayer;
+	if (!content) return;
+
+	for (auto node : CCArrayExt<CCNode*>(content->getChildren())) {
+
+		// 1️ Erst Originalklasse
+		auto levelCell = static_cast<APLevelCell*>(node);
+		if (!levelCell) continue;
+
+		auto level = levelCell->m_level;
+		if (!level) continue;
+		Level apLevel = APConnection::randomLevels[0];
+		for (Level l : APConnection::randomLevels)
+		{
+			if (l.id == std::to_string(level->m_levelID.value()))
+			{
+				apLevel = l;
+				break;
+			}
+		}
+		try
+		{
+			std::string key = fmt::format("n_{}",apLevel.id);
+			auto percent = GameStatsManager::sharedState()->getStat(key.c_str());
+			if (percent)
+			{
+				levelCell->setProgressbarPlayed(percent);
+			}
+			levelCell->setProgressbarUnlocked(apLevel.ap_progress);
+		}catch (const std::exception& e)
+		{
+			geode::log::error("APLayer::uodateAoCells - Error occured while updating progressbar for level '{}':{}",level->m_levelID, e);
+		}
+	}
+}
+
+
+void APLayer::show(){
 	//Create a new scene and add this layer to it
     auto scene = CCScene::create();
     scene->addChild(this);

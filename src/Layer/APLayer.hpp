@@ -9,6 +9,9 @@ using namespace geode::prelude;
 
 class APLayer : public CCLayer {
 public:
+
+    void updateAPCells(float f);
+
     CREATE_FUNC(APLayer);
 
     // Öffnet die Scene mit diesem Layer

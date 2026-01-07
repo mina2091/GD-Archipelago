@@ -8,6 +8,7 @@
 using namespace geode::prelude;
 
 class $modify(APLevelCell, LevelCell) {
+
     void loadFromLevel(GJGameLevel* level) {
         LevelCell::loadFromLevel(level);
 
@@ -82,35 +83,59 @@ class $modify(APLevelCell, LevelCell) {
 
         auto progressBarUnlockable = ProgressBar::create();
         progressBarUnlockable->setPosition({
-            m_mainLayer->getChildByID("length-label")->getPositionX() + 50,
+            m_mainLayer->getChildByID("length-label")->getPositionX() + 50, //TODO Make Positioning variable
             m_mainLayer->getChildByID("length-label")->getPositionY() - 10
         });
         progressBarUnlockable->setFillColor(colorUnlockable);
         progressBarUnlockable->updateProgress(100.0f); // Beispielwert
         progressBarUnlockable->setID("ap-progress-bar-unlock");
-        this->addChild(progressBarUnlockable);
+        progressBarUnlockable->setZOrder(0);
+        m_mainLayer->addChild(progressBarUnlockable);
 
 
         auto progressBarUnlocked = ProgressBar::create();
         progressBarUnlocked->setPosition({
-            m_mainLayer->getChildByID("length-label")->getPositionX() + 50,
+            m_mainLayer->getChildByID("length-label")->getPositionX() + 50, //TODO Make Positioning variable
             m_mainLayer->getChildByID("length-label")->getPositionY() - 10
             });
         progressBarUnlocked->setFillColor(colorUnlocked);
-        progressBarUnlocked->updateProgress(25.0f); // Beispielwert
+        progressBarUnlocked->updateProgress(75.0f); // Beispielwert
         progressBarUnlocked->setID("ap-progress-bar-unlocked");
-        this->addChild(progressBarUnlocked);
+        progressBarUnlocked->setZOrder(1);
+        m_mainLayer->addChild(progressBarUnlocked);
 
 
         auto progressBarPlayed = ProgressBar::create();
         progressBarPlayed->setPosition({
-            m_mainLayer->getChildByID("length-label")->getPositionX() + 50,
+            m_mainLayer->getChildByID("length-label")->getPositionX() + 50, //TODO Make Positioning variable
             m_mainLayer->getChildByID("length-label")->getPositionY() - 10
             });
         progressBarPlayed->setFillColor(colorPlayed);
-        progressBarPlayed->updateProgress(0); // Beispielwert
+        progressBarPlayed->updateProgress(5); // Beispielwert
         progressBarPlayed->setID("ap-progress-bar-played");
-        this->addChild(progressBarPlayed);
+        progressBarPlayed->setZOrder(2);
+        m_mainLayer->addChild(progressBarPlayed);
+    }
+
+    void setProgressbarPlayed(float f)
+    {
+        ProgressBar* progBar = typeinfo_cast<ProgressBar*>(m_mainLayer->getChildByID("ap-progress-bar-played"));
+
+        if (!progBar)
+        {
+            return;
+        }
+        progBar->updateProgress(f);
+    }
+
+    void setProgressbarUnlocked(float f)
+    {
+        ProgressBar* progBar = typeinfo_cast<ProgressBar*>(m_mainLayer->getChildByID("ap-progress-bar-unlocked"));
+        if (!progBar)
+        {
+            return;
+        }
+        progBar->updateProgress(f);
     }
 
     static const char* getDifficultyFrame(GJGameLevel* level) {
