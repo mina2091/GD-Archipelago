@@ -386,13 +386,39 @@ void APConnection::initOnConnect() {
         }
         if (noTimeout) {
             try {
-                auto levelsPath = geode::Mod::get()->getResourcesDir() / "levels.json";
-                auto allLevels = loadLevels(levelsPath.string());
-                randomLevels = pickRandomLevels(allLevels);
+                AP_RoomInfo roomInfo{};
+                AP_GetRoomInfo(&roomInfo);
+                auto ap_UUID = "schmockID";
+                auto playerID = "PlayerID";
+                auto oldLevels = fmt::format("{}{}.json",ap_UUID, playerID);
+                auto outPath = geode::Mod::get()->getSaveDir() / oldLevels;
+                auto seed = roomInfo.seed_name;
 
-                auto outPath = geode::Mod::get()->getSaveDir() / "randomLevels.json";
-                saveLevels(randomLevels, outPath.string());
-                geode::log::info("Saved random levels to: {}", outPath.string());
+                log::info("Room Info Stuff:", seed);
+                //if there's no save data for this multiworld create new randomized levels
+                if (!std::filesystem::exists(outPath)) {
+
+                    geode::log::info("No multiworld data found. Randomizing levels.");
+
+                    auto levelsPath = geode::Mod::get()->getResourcesDir() / "levels.json";
+                    auto allLevels = loadLevels(levelsPath.string());
+                    randomLevels = pickRandomLevels(allLevels);
+
+                    auto savedLevels = fmt::format("{}{}.json",ap_UUID, playerID);
+                    auto savePath = geode::Mod::get()->getSaveDir() / savedLevels;
+
+                    saveLevels(randomLevels, savePath.string());
+                    geode::log::info("Saved random levels to: {}", savePath.string());
+                }
+                //else load randomized levels from existing directory
+                else {
+                    geode::log::info("Found Multiworld data. Retrieving randomized levels.");
+                    randomLevels = loadLevels(outPath.string());
+
+                    //important for level count in ListView
+                    APConnection::buildIDTable(randomLevels);
+                }
+
             } catch (const std::exception& e) {
                 geode::log::info("APConnection::initOnConnect: failed to initialize levels: {}", e.what());
             }
