@@ -99,7 +99,7 @@ class $modify(APLevelCell, LevelCell) {
             m_mainLayer->getChildByID("length-label")->getPositionY() - 10
             });
         progressBarUnlocked->setFillColor(colorUnlocked);
-        progressBarUnlocked->updateProgress(75.0f); // Beispielwert
+        progressBarUnlocked->updateProgress(0); // Beispielwert
         progressBarUnlocked->setID("ap-progress-bar-unlocked");
         progressBarUnlocked->setZOrder(1);
         m_mainLayer->addChild(progressBarUnlocked);
@@ -111,7 +111,7 @@ class $modify(APLevelCell, LevelCell) {
             m_mainLayer->getChildByID("length-label")->getPositionY() - 10
             });
         progressBarPlayed->setFillColor(colorPlayed);
-        progressBarPlayed->updateProgress(5); // Beispielwert
+        progressBarPlayed->updateProgress(0); // Beispielwert
         progressBarPlayed->setID("ap-progress-bar-played");
         progressBarPlayed->setZOrder(2);
         m_mainLayer->addChild(progressBarPlayed);

@@ -172,13 +172,9 @@ void APLayer::updateAPCells(float f)
 		}
 		try
 		{
-			std::string key = fmt::format("n_{}",apLevel.id);
-			auto percent = GameStatsManager::sharedState()->getStat(key.c_str());
-			if (percent)
-			{
-				levelCell->setProgressbarPlayed(percent);
-			}
-			levelCell->setProgressbarUnlocked(apLevel.ap_progress);
+			//TODO Implement Data
+			levelCell->setProgressbarPlayed(0); //Dont know either where to get it. Everything I tested didnt give any output except 0. Even for levels I played to test.
+			levelCell->setProgressbarUnlocked(apLevel.ap_progress); //Doesnt work. Whats the right data? At least I dont get the output I expect
 		}catch (const std::exception& e)
 		{
 			geode::log::error("APLayer::uodateAoCells - Error occured while updating progressbar for level '{}':{}",level->m_levelID, e);
