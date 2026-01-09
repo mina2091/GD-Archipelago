@@ -21,8 +21,10 @@ using namespace geode::prelude;
 
 extern bool logged_in;
 
+//List of the displayed levels as CostumListView to access them
 CustomListView* m_listView = nullptr;
 
+//Initializes the overview page
 bool APLayer::init() {
 
     if (!CCLayer::init())
@@ -141,7 +143,8 @@ bool APLayer::init() {
     return true;
 }
 
-
+//Updates the APLevelCells
+//Used to update the Progressbars
 void APLayer::updateAPCells(float f)
 {
 
@@ -182,7 +185,7 @@ void APLayer::updateAPCells(float f)
 	}
 }
 
-
+//Shows the layer
 void APLayer::show(){
 	//Create a new scene and add this layer to it
     auto scene = CCScene::create();
@@ -205,6 +208,7 @@ void APLayer::show(){
 
 }
 
+//Pops the scene with transition
 void APLayer::onButtonClickPop(CCObject* btn) {
     // Back to last scene
     auto director = CCDirector::sharedDirector();
@@ -213,6 +217,7 @@ void APLayer::onButtonClickPop(CCObject* btn) {
     );
 }
 
+//Logs the Player out and pops the scene
 void APLayer::onLogOutButtonClick(CCObject* btn) {
 	logged_in = false;
 	APConnection::resetAfterTimeout();
@@ -222,6 +227,7 @@ void APLayer::onLogOutButtonClick(CCObject* btn) {
 	);
 }
 
+//Shows the stats layer
 void APLayer::openStatsLayer(CCObject* btn) {
     APProgressLayer::create()->show();
 }
