@@ -16,6 +16,7 @@ struct Level {
     std::string song_ids;
     int length;
     bool isPlatformer;
+    bool isFinished;
 };
 
 namespace APConnection {
@@ -32,7 +33,11 @@ namespace APConnection {
 
     int getLevelAmount();
 
+    void clearTable();
     void worldInputInit();                  //init from world
+
+    bool getIsFinished(int ap_id);
+    void setIsFinished(int ap_id);
 
     void clearItemCallback();
     void itemReceivedCallback(int64_t id, bool notify);
@@ -43,6 +48,8 @@ namespace APConnection {
 
 	void setLevelProgress(int64_t ap_id, int prog);
 	int64_t getProgressFromID(int64_t ap_id);
+    void addToCurrentFinishedLevels();
+    void checkForGoalAmount();
 
     void buildIDTable(const std::vector<Level>& levels);
 
