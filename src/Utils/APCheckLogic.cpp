@@ -25,7 +25,9 @@ class $modify (PlayLayer){
 
 		int level = -1; //local
 		int ap_id = APConnection::IDtoLvl[m_level->m_levelID];
+		geode::log::info("Level ap-ID {}", ap_id);
 		int lvl_progress = APConnection::getProgressFromID(ap_id);
+		geode::log::info("Progress Level {} = {}%", ap_id+1, lvl_progress);
 
 		auto lvl = APConnection::IDtoLvl.find(m_level->m_levelID);
 			if (lvl != APConnection::IDtoLvl.end()) {
@@ -36,7 +38,9 @@ class $modify (PlayLayer){
 				return;
 			}
 
-		if (this->getCurrentPercent() > lvl_progress && lvl_progress != 0 && this->isGameplayActive()) {
+		geode::log::info("{}", this->getCurrentPercent());
+
+		if (this->getCurrentPercent() > lvl_progress && lvl_progress != 0 && this->isGameplayActive() || (this->m_levelEndAnimationStarted && !APConnection::getIsFinished(ap_id))) {
 
 			//it doesnt work for 100% yet, no idea why
 			AchievementNotifier::sharedState()->notifyAchievement(
@@ -78,11 +82,20 @@ class $modify (PlayLayer){
 			}
 			*/
 
+
+			if (this->m_levelEndAnimationStarted) {
+				APConnection::setIsFinished(ap_id);
+				APConnection::addToCurrentFinishedLevels();
+				APConnection::checkForGoalAmount();
+			}
+
 			//TODO: make it work for 100% and add to something like "finished_levels" so it can track and get win condition
 			if (lvl_progress < 100) {
 				this->PlayLayer::destroyPlayer(m_player1, nullptr);
 				return;
 			}
+
+			APConnection::setLevelProgress(ap_id, lvl_progress+local_ppc);
 
 		}
 	}

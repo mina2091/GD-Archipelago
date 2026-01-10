@@ -20,10 +20,13 @@ using json = nlohmann::json;
 auto ap_min_diff = 1;
 auto ap_max_diff = 1;
 auto ap_level_amount = 100; //test value for now
-auto ap_goal_amount = 0;
+auto ap_goal_amount = 1; //test value for now
 auto ap_checks_per_level = 0;
 auto ap_starting_level_amount = 0;
 auto ap_percentage_for_check = 20; //test value for now
+
+int percentagesGetFromInitArray[100];  //we have to change that
+int currentFinishedLevels = 0;
 
 namespace APConnection {
     std::vector<int64_t> lvlToID;
@@ -42,13 +45,19 @@ void APConnection::clearItemCallback() {
     geode::log::info("APConnection::clearItemCallback");
 }
 
-int APConnection::getLevelAmount()
-{
+int APConnection::getLevelAmount(){
     return ap_level_amount;
 }
 
-void APConnection::itemReceivedCallback(int64_t id, bool notify) {
+void APConnection::itemReceivedCallback(int64_t id, bool notify){
     geode::log::info("Received Item ID: {}", id);
+
+    /*
+    if (id == 356){         //this honestly might be the worst code ever written
+        clearTable();
+        //int* percentagesGetFromInitArray = new int[ap_level_amount];  //TODO: create array with length of level_amount
+    }
+    */
 
     //[GD-Archipelago]: APConnection::itemReceivedCallback, 356 - Level 1
     //[GD-Archipelago]: APConnection::itemReceivedCallback, 456 - Level 2
@@ -57,13 +66,29 @@ void APConnection::itemReceivedCallback(int64_t id, bool notify) {
 	// (356 - 56) / 100 - 3 = 0
 	// (456 - 56) / 100 - 3 = 1
 
+    for (int i = 0; i < 100; i++) {
+        if (i == id) {
+            percentagesGetFromInitArray[i] += 1;
+            geode::log::info("Level {}: +{}%. (Now: {}%)", id + 1, ap_percentage_for_check, ap_percentage_for_check * percentagesGetFromInitArray[i]);
+            return;
+        }
+    }
+}
+/*
 	auto new_progress = getProgressFromID(id) + ap_percentage_for_check;
 	geode::log::info("Updated Level {} progress from {}% to {}%", id + 1, getProgressFromID(id), new_progress);
 	setLevelProgress(id, new_progress);
 }
+*/
 
 void APConnection::locationCheckedCallback(int64_t id) {
     geode::log::info("Received Location Check ID: {}", id);
+
+    //275
+    if (id%100 == 75){
+        addToCurrentFinishedLevels();
+        geode::log::info("added to finished_levels because {} was X75", id);
+    }
 }
 
 //convert into local variables
@@ -95,6 +120,16 @@ void APConnection::setChecksPerLevel(int i){
 
 void APConnection::setStartingLevelAmount(int i){
     ap_starting_level_amount = i;
+}
+
+void APConnection::clearTable(){
+    //clear previous loaded content for percentages
+    std::fill(
+        std::begin(percentagesGetFromInitArray),
+        std::end(percentagesGetFromInitArray),
+        0
+    );
+    geode::log::info("Table cleared");
 }
 
 //takes slot_fill_data from world and converts into local variables
@@ -155,6 +190,27 @@ std::vector<Level> APConnection::pickRandomLevels(const std::vector<Level>& allL
     return result;
 }
 
+bool APConnection::getIsFinished(int ap_id){
+    return APConnection::randomLevels[ap_id].isFinished;
+}
+
+void APConnection::setIsFinished(int ap_id){
+    APConnection::randomLevels[ap_id].isFinished = true;
+}
+
+void APConnection::addToCurrentFinishedLevels(){
+    currentFinishedLevels += 1;
+    geode::log::info("added 1 to finishedlevels, now: {}", currentFinishedLevels);
+	geode::log::info("levels needed to finish: {}", ap_goal_amount);    //TODO: goal amount still sometimes takes hard-coded value
+}
+
+void APConnection::checkForGoalAmount(){
+    if (currentFinishedLevels == ap_goal_amount){
+        geode::log::info("finished!");
+        AP_StoryComplete();
+    }
+}
+
 //TODO: fix order of name, id and entry (currently reversed)
 std::vector<Level> APConnection::loadLevels(const std::string& path) {
     std::ifstream file(path);
@@ -172,6 +228,8 @@ std::vector<Level> APConnection::loadLevels(const std::string& path) {
     std::vector<Level> levels;
     levels.reserve(j.size());
 
+    int counter = 0;
+
     for (const auto& entry : j) {
         // Safe reads with sensible defaults
         std::string name = "";
@@ -182,6 +240,7 @@ std::vector<Level> APConnection::loadLevels(const std::string& path) {
         std::string song_ids = "";
         int length = 0;
         bool isPlatformer = false;
+        bool isFinished = false;
 
         try {
             if (entry.contains("name") && !entry["name"].is_null() && entry["name"].is_string()) {
@@ -282,7 +341,7 @@ std::vector<Level> APConnection::loadLevels(const std::string& path) {
         }
 
         levels.push_back(Level{
-            0,
+            percentagesGetFromInitArray[counter++] * ap_percentage_for_check,
             name,
             id,
             difficulty,
@@ -290,7 +349,8 @@ std::vector<Level> APConnection::loadLevels(const std::string& path) {
             stars_amount,
             song_ids,
             length,
-            isPlatformer
+            isPlatformer,
+            isFinished
         });
     }
 
@@ -318,22 +378,13 @@ void APConnection::saveLevels(const std::vector<Level>& levels, const std::strin
 }
 
 void APConnection::setLevelProgress(int64_t ap_id, int prog) {
-	for (int i = 0; i < randomLevels.size(); ++i) {
-        if(std::stoll(randomLevels[i].id) == lvlToID[ap_id]) {
-            randomLevels[i].ap_progress = prog;
-			geode::log::info("Set Level {} progress to {}", i + 1, prog);
-            return;
-        }
-    }
+    randomLevels[ap_id].ap_progress = prog;
+    geode::log::info("Set Level {} progress to {}%", ap_id + 1, prog);
+    return;
 }
 
 int64_t APConnection::getProgressFromID(int64_t ap_id) {
-    for (int i = 0; i < randomLevels.size(); ++i) {
-        if(std::stoll(randomLevels[i].id) == lvlToID[ap_id]) {
-            return randomLevels[i].ap_progress;
-        }
-    }
-    return 0;
+    return randomLevels[ap_id].ap_progress;
 }
 
 void APConnection::buildIDTable(const std::vector<Level>& levels){
@@ -458,6 +509,8 @@ void APConnection::resetAfterTimeout() {
     lvlToID.clear();
     IDtoLvl.clear();
     randomLevels.clear();
+    clearTable();
+    currentFinishedLevels = 0;
 
     geode::log::info("APConnection::resetAfterTimeout: cleanup complete");
 }
