@@ -20,7 +20,9 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SOURCES}
         src/Utils/APConnection.cpp
         src/Utils/APConnection.hpp
-        src/hooks/LevelCell.cpp)
+        src/hooks/LevelCell.cpp
+        src/Layer/LevelInfoLayer.cpp
+        src/Utils/Events.hpp)
 
 add_compile_options(-Wall -Wextra)
 

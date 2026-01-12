@@ -7,7 +7,7 @@
 #include <Geode/cocos/cocoa/CCArray.h>
 #include <Geode/binding/GJGameLevel.hpp>
 
-
+#include "../Utils/Events.hpp"
 #include "APProgressLayer.hpp"
 #include "APLayer.hpp"
 
@@ -23,6 +23,16 @@ extern bool logged_in;
 
 //List of the displayed levels as CostumListView to access them
 CustomListView* m_listView = nullptr;
+
+
+APLayer* APLayer::get() {
+	return s_instance;
+}
+
+void APLayer::set(APLayer* layer) {
+	s_instance = layer;
+}
+
 
 //Initializes the overview page
 bool APLayer::init() {
@@ -137,8 +147,10 @@ bool APLayer::init() {
 
 	this->scheduleOnce(
 	schedule_selector(APLayer::updateAPCells),
-	2.0f
+	0.0f
 	);
+
+	APLayer::set(this);
 
     return true;
 }
@@ -175,12 +187,19 @@ void APLayer::updateAPCells(float f)
 		}
 		try
 		{
-			//TODO Implement Data
-			levelCell->setProgressbarPlayed(0); //Dont know either where to get it. Everything I tested didnt give any output except 0. Even for levels I played to test.
+			if (f == 0.0f)
+			{
+				//TODO Implement Data
+				levelCell->setProgressbarPlayed(apLevel.playerProgress); //Dont know either where to get it. Everything I tested didnt give any output except 0. Even for levels I played to test.
+			}
+			else
+			{
+				levelCell->setProgressbarPlayed(f);
+			}
 			levelCell->setProgressbarUnlocked(apLevel.ap_progress); //Doesnt work. Whats the right data? At least I dont get the output I expect
 		}catch (const std::exception& e)
 		{
-			geode::log::error("APLayer::uodateAoCells - Error occured while updating progressbar for level '{}':{}",level->m_levelID, e);
+			geode::log::error("APLayer::updateAPCells - Error occured while updating progressbar for level '{}': {}",level->m_levelID, e);
 		}
 	}
 }

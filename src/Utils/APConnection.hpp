@@ -17,6 +17,7 @@ struct Level {
     int length;
     bool isPlatformer;
     bool isFinished;
+    int playerProgress;
 };
 
 namespace APConnection {

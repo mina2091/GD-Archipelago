@@ -40,6 +40,12 @@ class $modify (PlayLayer){
 
 		geode::log::info("{}", this->getCurrentPercent());
 
+		if (APConnection::randomLevels[ap_id].playerProgress < this->getCurrentPercentInt())
+		{
+			APConnection::randomLevels[ap_id].playerProgress = this->getCurrentPercentInt();
+			geode::log::info("Set Level->playerProgress to: {}", APConnection::randomLevels[ap_id].playerProgress);
+		}
+
 		if (this->getCurrentPercent() > lvl_progress && lvl_progress != 0 && this->isGameplayActive() || (this->m_levelEndAnimationStarted && !APConnection::getIsFinished(ap_id))) {
 
 			//it doesnt work for 100% yet, no idea why
@@ -81,6 +87,7 @@ class $modify (PlayLayer){
 				progress = 101;	//out of the loop
 			}
 			*/
+
 
 
 			if (this->m_levelEndAnimationStarted) {
