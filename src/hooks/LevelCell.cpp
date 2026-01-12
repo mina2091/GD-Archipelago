@@ -13,7 +13,6 @@ class $modify(APLevelCell, LevelCell) {
     void loadFromLevel(GJGameLevel* level) {
         LevelCell::loadFromLevel(level);
 
-
         // Only modify Archipelago levels
         if (!level || !level->m_creatorName.starts_with("Level "))
             return;
@@ -21,10 +20,22 @@ class $modify(APLevelCell, LevelCell) {
         if (!m_mainLayer)
             return;
 
+        //if level is locked remove all sprites from cell and add a lock icon
+        if (level->m_levelID == 1) {
+            m_mainLayer->removeAllChildren();
+
+            auto lockIcon = CCSprite::createWithSpriteFrameName("GJ_lock_001.png");
+            lockIcon->setPosition({ 180, 34 });
+            lockIcon->setAnchorPoint({ 0.5f, 0 });
+            lockIcon->setID("lock-icon");
+            m_mainLayer->addChild(lockIcon);
+
+            return;
+        }
+
         auto difficultyContainer = m_mainLayer->getChildByID("difficulty-container");
         if (!difficultyContainer)
             return;
-
 
         // Remove old AP sprite if cell reused
         difficultyContainer->removeChildByID("ap-difficulty-sprite");

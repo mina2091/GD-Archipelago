@@ -12,6 +12,7 @@
 #include <chrono>
 
 #include "../Layer/APLogInLayer.hpp"
+#include "../Layer/APLayer.hpp"
 
 // for convenience
 using json = nlohmann::json;
@@ -528,7 +529,7 @@ bool APConnection::isInitTimedOut() {
     return g_init_timedout.load();
 }
 
-void APConnection::resetAfterTimeout() {
+void APConnection::resetData() {
     geode::log::info("APConnection::resetAfterTimeout: cleaning up after timeout...");
 
     // try to stop the client if possible
