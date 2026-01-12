@@ -12,22 +12,27 @@
 
 #include "APConnection.hpp"
 #include "Archipelago.h"
+#include "../Layer/APCheckLayer.hpp"
 
 extern int ap_percentage_for_check;
 
-auto local_ppc = ap_percentage_for_check;
-//auto progress = ap_percentage_for_check;
+extern bool logged_in;
 
 class $modify (PlayLayer){
 
+	//TODO: Check logic not working yet (im too fried for ts rn)
 	virtual void postUpdate(float p0) {
 		PlayLayer::postUpdate(p0);
 
+		if (!logged_in) {
+			return;
+		}
+
 		int level = -1; //local
 		int ap_id = APConnection::IDtoLvl[m_level->m_levelID];
-		geode::log::info("Level ap-ID {}", ap_id);
+		int player_progress = APConnection::getCurrentProgressFromID(ap_id);
 		int lvl_progress = APConnection::getProgressFromID(ap_id);
-		geode::log::info("Progress Level {} = {}%", ap_id+1, lvl_progress);
+		geode::log::info("Progress Level {} = {} % --- Player Progress: {} %", ap_id+1, lvl_progress, player_progress);
 
 		auto lvl = APConnection::IDtoLvl.find(m_level->m_levelID);
 			if (lvl != APConnection::IDtoLvl.end()) {
@@ -40,8 +45,14 @@ class $modify (PlayLayer){
 
 		geode::log::info("{}", this->getCurrentPercent());
 
-		if (this->getCurrentPercent() > lvl_progress && lvl_progress != 0 && this->isGameplayActive() || (this->m_levelEndAnimationStarted && !APConnection::getIsFinished(ap_id))) {
+		if (this->getCurrentPercent() > lvl_progress
+			&& player_progress != lvl_progress
+			&& lvl_progress != 0
+			&& this->isGameplayActive()
+			|| (this->m_levelEndAnimationStarted && !APConnection::getIsFinished(ap_id))
+			) {
 
+			/*
 			//it doesnt work for 100% yet, no idea why
 			AchievementNotifier::sharedState()->notifyAchievement(
 				"Check Sent!",
@@ -49,6 +60,11 @@ class $modify (PlayLayer){
 				"../img/archi.png"_spr,
 				false
 			);
+			*/
+
+			auto msg = fmt::format("Check has been sent!\n\n Level {}, {}%", ap_id+1, lvl_progress);
+			APCheckLayer::show(msg);
+
 
 			int loc = 0x100 + (level - 1) * 100 + (lvl_progress/5)-1;
 			//256 - 0 * 100 + 1/1  = 256
@@ -89,13 +105,14 @@ class $modify (PlayLayer){
 				APConnection::checkForGoalAmount();
 			}
 
-			//TODO: make it work for 100% and add to something like "finished_levels" so it can track and get win condition
-			if (lvl_progress < 100) {
+			APConnection::setCurrentProgress(ap_id, player_progress + APConnection::getPPC());
+
+			if (player_progress != lvl_progress && lvl_progress < 100) {
 				this->PlayLayer::destroyPlayer(m_player1, nullptr);
 				return;
 			}
 
-			APConnection::setLevelProgress(ap_id, lvl_progress+local_ppc);
+			APConnection::setLevelProgress(ap_id, lvl_progress + APConnection::getPPC());
 
 		}
 	}

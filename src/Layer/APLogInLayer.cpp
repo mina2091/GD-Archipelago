@@ -21,9 +21,9 @@
 #include "APLayer.hpp"
 #include "APProgressLayer.hpp"
 
-extern bool logged_in;
-
 using namespace geode::prelude;
+
+extern bool logged_in;
 
 bool APLogInLayer::init() {
     if (!CCLayer::init())
@@ -211,13 +211,14 @@ void APLogInLayer::onClickConnectButton(CCObject* btn) {
         portStr = fmt::format("archipelago.gg:{}", portStr);
     }
 
-	logged_in = true;
-
     //AP Init
     const char* host = portStr.c_str();
     const char* gameName = "Geometry Dash";
     const char* slotName = slotNameStr.c_str();
     const char* password = passwordStr.c_str();
+
+    logged_in = true;
+    geode::log::info("Logged in!");
 
     AP_Init(host, gameName, slotName, password);
     AP_SetItemClearCallback(&APConnection::clearItemCallback);
@@ -254,10 +255,6 @@ void APLogInLayer::checkInit(float dt) {
         // perform cleanup so a later reconnect is possible
         APConnection::resetAfterTimeout();
 
-        // reset login flag so app returns to login state
-        extern bool logged_in;
-        logged_in = false;
-
         // show alert on main thread (we are already on main thread because scheduler runs there)
         FLAlertLayer::create(
             "Archipelago: Timeout",
@@ -284,13 +281,14 @@ void APLogInLayer::onClickConnectButtonTemp(CCObject* btn) {
     std::string slotNameStr = this->inputTxtName->getString();
     std::string passwordStr = this->inputTxtPassword->getString();
 
-    logged_in = true;
-
     //AP Init
     const char* host = "localhost:38281";
     const char* gameName = "Geometry Dash";
     const char* slotName = "Player1";
     const char* password = "";
+
+    logged_in = true;
+    geode::log::info("Logged in!");
 
     AP_Init(host, gameName, slotName, password);
     AP_SetItemClearCallback(&APConnection::clearItemCallback);

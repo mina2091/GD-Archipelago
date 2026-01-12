@@ -26,6 +26,7 @@ auto ap_starting_level_amount = 0;
 auto ap_percentage_for_check = 20; //test value for now
 
 int percentagesGetFromInitArray[100];  //we have to change that
+int playerProgressPerLevelArray[100];
 int currentFinishedLevels = 0;
 
 namespace APConnection {
@@ -73,6 +74,8 @@ void APConnection::itemReceivedCallback(int64_t id, bool notify){
             return;
         }
     }
+
+    setLevelProgress(id, randomLevels[id].ap_progress);
 }
 /*
 	auto new_progress = getProgressFromID(id) + ap_percentage_for_check;
@@ -83,6 +86,22 @@ void APConnection::itemReceivedCallback(int64_t id, bool notify){
 
 void APConnection::locationCheckedCallback(int64_t id) {
     geode::log::info("Received Location Check ID: {}", id);
+
+    /*
+    20:08:16 INFO  [GD-Archipelago]: Received Location Check ID: 257
+    20:08:16 INFO  [GD-Archipelago]: Received Location Check ID: 259
+    20:08:16 INFO  [GD-Archipelago]: Received Location Check ID: 357
+    */
+
+    auto lvl_player_progress = id/100-2;
+
+    for (int i = 0; i < 100; i++) {
+        if (i == lvl_player_progress) {
+            playerProgressPerLevelArray[i] += 1;
+            geode::log::info("Added Player Progression to Level {}", lvl_player_progress+1);
+            return;
+        }
+    }
 
     //275
     if (id%100 == 75){
@@ -95,31 +114,38 @@ void APConnection::locationCheckedCallback(int64_t id) {
 void APConnection::setMinDiff(int i){
     ap_min_diff = i;
     g_min_received.store(true);
-    geode::log::info("ap_min_diff: {}", i);
+    geode::log::info("Min Diff: {}", i);
 }
 
 void APConnection::setMaxDiff(int i){
     ap_max_diff = i;
     g_max_received.store(true);
-    geode::log::info("ap_max_diff: {}", i);
+    geode::log::info("Max Diff: {}", i);
 }
 
 void APConnection::setLevelAmount(int i){
     ap_level_amount = i;
+	geode::log::info("Level Amount: {}", i);
 }
 
-void APConnection::setGoalAmount(int i)
-{
+void APConnection::setGoalAmount(int i){
     ap_goal_amount = i;
+	geode::log::info("Goal Amount: {}", i);
 }
 
 void APConnection::setChecksPerLevel(int i){
     ap_checks_per_level = i;
     ap_percentage_for_check = 100 / i;
+	geode::log::info("Checks Per Level: {}, Percentage per Check: {}%", i, ap_percentage_for_check);
+}
+
+int APConnection::getPPC(){
+   return ap_percentage_for_check;
 }
 
 void APConnection::setStartingLevelAmount(int i){
     ap_starting_level_amount = i;
+	geode::log::info("Starting Level Amount: {}", i);
 }
 
 void APConnection::clearTable(){
@@ -129,7 +155,13 @@ void APConnection::clearTable(){
         std::end(percentagesGetFromInitArray),
         0
     );
-    geode::log::info("Table cleared");
+
+    std::fill(
+        std::begin(playerProgressPerLevelArray),
+        std::end(playerProgressPerLevelArray),
+        0
+    );
+    geode::log::info("Tables cleared");
 }
 
 //takes slot_fill_data from world and converts into local variables
@@ -229,6 +261,7 @@ std::vector<Level> APConnection::loadLevels(const std::string& path) {
     levels.reserve(j.size());
 
     int counter = 0;
+    int counterPlayer = 0;
 
     for (const auto& entry : j) {
         // Safe reads with sensible defaults
@@ -350,7 +383,8 @@ std::vector<Level> APConnection::loadLevels(const std::string& path) {
             song_ids,
             length,
             isPlatformer,
-            isFinished
+            isFinished,
+            playerProgressPerLevelArray[counterPlayer++] * ap_percentage_for_check
         });
     }
 
@@ -385,6 +419,15 @@ void APConnection::setLevelProgress(int64_t ap_id, int prog) {
 
 int64_t APConnection::getProgressFromID(int64_t ap_id) {
     return randomLevels[ap_id].ap_progress;
+}
+
+void APConnection::setCurrentProgress(int64_t ap_id, int prog){
+    randomLevels[ap_id].playerProgress = prog;
+    geode::log::info("Set Level {} player progress to {}%", ap_id + 1, prog);
+}
+
+int64_t APConnection::getCurrentProgressFromID(int64_t ap_id){
+    return randomLevels[ap_id].playerProgress;
 }
 
 void APConnection::buildIDTable(const std::vector<Level>& levels){
@@ -474,6 +517,7 @@ void APConnection::initOnConnect() {
             g_init_done.store(true);
         }
     }).detach();
+
 }
 
 bool APConnection::isInitComplete() {

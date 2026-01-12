@@ -30,10 +30,7 @@ class $modify(menu, CreatorLayer) {
 	}
 
 	void onAPButtonClick(CCObject * btn) {
-		if(!logged_in)
-			APLogInLayer::create()->show();
-		else
-			APLayer::create()->show();
+		APLogInLayer::create()->show();
 	}
 
 };

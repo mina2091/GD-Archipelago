@@ -17,9 +17,9 @@
 
 using namespace geode::prelude;
 
-#include "../hooks/LevelCell.cpp"
-
 extern bool logged_in;
+
+#include "../hooks/LevelCell.cpp"
 
 CustomListView* m_listView = nullptr;
 
@@ -36,23 +36,6 @@ bool APLayer::init() {
 	bg->setID("ap-layer-bg");
 	bg->setColor({ 136, 73, 172 });
     this->addChild(bg);
-
-
-    //Top Left menu, mainly used te re-enter latest scene
-	auto topLeftMenu = CCMenu::create();
-
-    auto backButton = CCMenuItemSpriteExtra::create(
-        CCSprite::createWithSpriteFrameName("GJ_arrow_01_001.png"),
-        this,
-        menu_selector(APLayer::onButtonClickPop)
-    );
-
-    topLeftMenu->setPosition({ 25, size.height - 25});
-	topLeftMenu->addChild(backButton);
-	topLeftMenu->setZOrder(2);
-    topLeftMenu->setID("top-left-menu");
-    this->addChild(topLeftMenu);
-
 
 	//Top Right Menu for refreshing the list
 	auto topRightMenu = CCMenu::create();
@@ -215,6 +198,7 @@ void APLayer::onButtonClickPop(CCObject* btn) {
 
 void APLayer::onLogOutButtonClick(CCObject* btn) {
 	logged_in = false;
+	geode::log::info("Logged out!");
 	APConnection::resetAfterTimeout();
 	auto director = CCDirector::sharedDirector();
 	director->popSceneWithTransition(

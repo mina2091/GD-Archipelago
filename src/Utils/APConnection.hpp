@@ -17,6 +17,7 @@ struct Level {
     int length;
     bool isPlatformer;
     bool isFinished;
+    int playerProgress;
 };
 
 namespace APConnection {
@@ -29,6 +30,7 @@ namespace APConnection {
     void setLevelAmount(int i);
     void setGoalAmount(int i);
     void setChecksPerLevel(int i);
+    int getPPC();
     void setStartingLevelAmount(int i);
 
     int getLevelAmount();
@@ -48,6 +50,8 @@ namespace APConnection {
 
 	void setLevelProgress(int64_t ap_id, int prog);
 	int64_t getProgressFromID(int64_t ap_id);
+    void setCurrentProgress(int64_t ap_id, int prog);
+    int64_t getCurrentProgressFromID(int64_t ap_id);
     void addToCurrentFinishedLevels();
     void checkForGoalAmount();
 
