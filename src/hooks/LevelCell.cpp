@@ -9,6 +9,7 @@ using namespace geode::prelude;
 
 class $modify(APLevelCell, LevelCell) {
 
+    //Creates APLevelCell from GJGameLevel
     void loadFromLevel(GJGameLevel* level) {
         LevelCell::loadFromLevel(level);
 
@@ -50,12 +51,15 @@ class $modify(APLevelCell, LevelCell) {
         m_mainLayer->getChildByID("length-icon")->setPositionX(m_mainLayer->getChildByID("length-icon")->getPositionX() - 45);
         m_mainLayer->getChildByID("length-label")->setPositionX(m_mainLayer->getChildByID("length-label")->getPositionX() - 45);
 
+        //Creates progressbars
         setProgressBar();
 
         if (!oldSprite)
             return;
 
         oldSprite->setVisible(false);
+
+        //Sets difficulty display
 
         const char* frame = getDifficultyFrame(level);
         if (!frame)
@@ -73,6 +77,8 @@ class $modify(APLevelCell, LevelCell) {
         difficultyContainer->addChild(newSprite);
     }
 
+    //Creates the Progressbars for the AP status showing
+    //(Locked content, unlocked content and played content)
     void setProgressBar()
     {
 
@@ -81,6 +87,8 @@ class $modify(APLevelCell, LevelCell) {
         cocos2d::ccColor3B colorUnlocked = { 70, 70, 70 };
         cocos2d::ccColor3B colorPlayed = { 0, 255, 0 };
 
+        //Unlockable content Progressbar. Never editet. Is the last Layer from the 3 bars and is only there to show the
+        //remaining progress which isn't unlocked
         auto progressBarUnlockable = ProgressBar::create();
         progressBarUnlockable->setPosition({
             m_mainLayer->getChildByID("length-label")->getPositionX() + 50, //TODO Make Positioning variable
@@ -93,6 +101,7 @@ class $modify(APLevelCell, LevelCell) {
         m_mainLayer->addChild(progressBarUnlockable);
 
 
+        //Unlocked content Progressbar. Shows how far the content of the level is unlocked.
         auto progressBarUnlocked = ProgressBar::create();
         progressBarUnlocked->setPosition({
             m_mainLayer->getChildByID("length-label")->getPositionX() + 50, //TODO Make Positioning variable
@@ -104,7 +113,7 @@ class $modify(APLevelCell, LevelCell) {
         progressBarUnlocked->setZOrder(1);
         m_mainLayer->addChild(progressBarUnlocked);
 
-
+        //Played content Progressbar. Shows how much of the content is already successfully played.
         auto progressBarPlayed = ProgressBar::create();
         progressBarPlayed->setPosition({
             m_mainLayer->getChildByID("length-label")->getPositionX() + 50, //TODO Make Positioning variable
@@ -117,6 +126,7 @@ class $modify(APLevelCell, LevelCell) {
         m_mainLayer->addChild(progressBarPlayed);
     }
 
+    //Sets the state of the played content Progressbar
     void setProgressbarPlayed(float f)
     {
         ProgressBar* progBar = typeinfo_cast<ProgressBar*>(m_mainLayer->getChildByID("ap-progress-bar-played"));
@@ -128,6 +138,7 @@ class $modify(APLevelCell, LevelCell) {
         progBar->updateProgress(f);
     }
 
+    //Sets the state of the unlocked content Progressbar
     void setProgressbarUnlocked(float f)
     {
         ProgressBar* progBar = typeinfo_cast<ProgressBar*>(m_mainLayer->getChildByID("ap-progress-bar-unlocked"));
@@ -138,6 +149,7 @@ class $modify(APLevelCell, LevelCell) {
         progBar->updateProgress(f);
     }
 
+    //Gets the right picture for the current difficulty
     static const char* getDifficultyFrame(GJGameLevel* level) {
         if (level->m_demon)
         {

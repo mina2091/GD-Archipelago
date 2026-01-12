@@ -10,6 +10,9 @@ using namespace geode::prelude;
 class APLayer : public CCLayer {
 public:
 
+    static APLayer* get();
+    static void set(APLayer * layer);
+
     void updateAPCells(float f);
 
     CREATE_FUNC(APLayer);
@@ -25,6 +28,10 @@ public:
 	void openStatsLayer(CCObject* btn);
 
     GJGameLevel* createLevelShell(const Level& ap);
+
+private:
+
+    static inline APLayer* s_instance = nullptr;
 
 protected:
     bool init() override;

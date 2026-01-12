@@ -7,7 +7,7 @@
 #include <Geode/cocos/cocoa/CCArray.h>
 #include <Geode/binding/GJGameLevel.hpp>
 
-
+#include "../Utils/Events.hpp"
 #include "APProgressLayer.hpp"
 #include "APLayer.hpp"
 
@@ -17,12 +17,24 @@
 
 using namespace geode::prelude;
 
-extern bool logged_in;
-
 #include "../hooks/LevelCell.cpp"
 
+extern bool logged_in;
+
+//List of the displayed levels as CostumListView to access them
 CustomListView* m_listView = nullptr;
 
+
+APLayer* APLayer::get() {
+	return s_instance;
+}
+
+void APLayer::set(APLayer* layer) {
+	s_instance = layer;
+}
+
+
+//Initializes the overview page
 bool APLayer::init() {
 
     if (!CCLayer::init())
@@ -118,13 +130,16 @@ bool APLayer::init() {
 
 	this->scheduleOnce(
 	schedule_selector(APLayer::updateAPCells),
-	2.0f
+	0.0f
 	);
+
+	APLayer::set(this);
 
     return true;
 }
 
-
+//Updates the APLevelCells
+//Used to update the Progressbars
 void APLayer::updateAPCells(float f)
 {
 
@@ -155,17 +170,24 @@ void APLayer::updateAPCells(float f)
 		}
 		try
 		{
-			//TODO Implement Data
-			levelCell->setProgressbarPlayed(0); //Dont know either where to get it. Everything I tested didnt give any output except 0. Even for levels I played to test.
+			if (f == 0.0f)
+			{
+				//TODO Implement Data
+				levelCell->setProgressbarPlayed(apLevel.playerProgress); //Dont know either where to get it. Everything I tested didnt give any output except 0. Even for levels I played to test.
+			}
+			else
+			{
+				levelCell->setProgressbarPlayed(f);
+			}
 			levelCell->setProgressbarUnlocked(apLevel.ap_progress); //Doesnt work. Whats the right data? At least I dont get the output I expect
 		}catch (const std::exception& e)
 		{
-			geode::log::error("APLayer::uodateAoCells - Error occured while updating progressbar for level '{}':{}",level->m_levelID, e);
+			geode::log::error("APLayer::updateAPCells - Error occured while updating progressbar for level '{}': {}",level->m_levelID, e);
 		}
 	}
 }
 
-
+//Shows the layer
 void APLayer::show(){
 	//Create a new scene and add this layer to it
     auto scene = CCScene::create();
@@ -188,6 +210,7 @@ void APLayer::show(){
 
 }
 
+//Pops the scene with transition
 void APLayer::onButtonClickPop(CCObject* btn) {
     // Back to last scene
     auto director = CCDirector::sharedDirector();
@@ -196,6 +219,7 @@ void APLayer::onButtonClickPop(CCObject* btn) {
     );
 }
 
+//Logs the Player out and pops the scene
 void APLayer::onLogOutButtonClick(CCObject* btn) {
 	logged_in = false;
 	geode::log::info("Logged out!");
@@ -206,6 +230,7 @@ void APLayer::onLogOutButtonClick(CCObject* btn) {
 	);
 }
 
+//Shows the stats layer
 void APLayer::openStatsLayer(CCObject* btn) {
     APProgressLayer::create()->show();
 }

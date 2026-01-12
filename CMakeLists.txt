@@ -23,8 +23,9 @@ add_library(${PROJECT_NAME} SHARED ${SOURCES}
         src/hooks/LevelCell.cpp
         src/Layer/APCheckLayer.hpp
         src/Layer/APCheckLayer.cpp
-        src/Layer/APCheckLayer.hpp
+        src/Layer/LevelInfoLayer.cpp
 )
+        
 
 add_compile_options(-Wall -Wextra)
 

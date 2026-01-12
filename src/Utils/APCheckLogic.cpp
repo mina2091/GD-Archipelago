@@ -99,6 +99,7 @@ class $modify (PlayLayer){
 			*/
 
 
+
 			if (this->m_levelEndAnimationStarted) {
 				APConnection::setIsFinished(ap_id);
 				APConnection::addToCurrentFinishedLevels();
