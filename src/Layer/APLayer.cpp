@@ -130,7 +130,7 @@ bool APLayer::init() {
 
 	this->scheduleOnce(
 	schedule_selector(APLayer::updateAPCells),
-	0.0f
+	1.0f
 	);
 
 	APLayer::set(this);
@@ -172,14 +172,13 @@ void APLayer::updateAPCells(float f)
 		{
 			if (f == 0.0f)
 			{
-				//TODO Implement Data
-				levelCell->setProgressbarPlayed(apLevel.playerProgress); //Dont know either where to get it. Everything I tested didnt give any output except 0. Even for levels I played to test.
+				levelCell->setProgressbarPlayed(apLevel.playerProgress);
 			}
 			else
 			{
 				levelCell->setProgressbarPlayed(f);
 			}
-			levelCell->setProgressbarUnlocked(apLevel.ap_progress); //Doesnt work. Whats the right data? At least I dont get the output I expect
+			levelCell->setProgressbarUnlocked(apLevel.ap_progress);
 		}catch (const std::exception& e)
 		{
 			geode::log::error("APLayer::updateAPCells - Error occured while updating progressbar for level '{}': {}",level->m_levelID, e);
