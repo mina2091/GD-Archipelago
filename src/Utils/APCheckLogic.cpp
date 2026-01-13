@@ -110,6 +110,7 @@ class $modify (PlayLayer){
 
 			if (player_progress != lvl_progress && lvl_progress < 100) {
 				this->PlayLayer::destroyPlayer(m_player1, nullptr);
+				this->PlayLayer::pauseGame(false);
 				return;
 			}
 
