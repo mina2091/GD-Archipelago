@@ -170,14 +170,7 @@ void APLayer::updateAPCells(float f)
 		}
 		try
 		{
-			if (f == 0.0f)
-			{
-				levelCell->setProgressbarPlayed(apLevel.playerProgress);
-			}
-			else
-			{
-				levelCell->setProgressbarPlayed(f);
-			}
+			levelCell->setProgressbarPlayed(apLevel.playerProgress);
 			levelCell->setProgressbarUnlocked(apLevel.ap_progress);
 		}catch (const std::exception& e)
 		{
