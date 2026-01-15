@@ -222,7 +222,7 @@ void APLayer::onButtonClickPop(CCObject* btn) {
 void APLayer::onLogOutButtonClick(CCObject* btn) {
 	logged_in = false;
 	geode::log::info("Logged out!");
-	APConnection::resetAfterTimeout();
+	APConnection::resetData();
 	auto director = CCDirector::sharedDirector();
 	director->popSceneWithTransition(
 		.5f, PopTransition::kPopTransitionFade
@@ -241,11 +241,19 @@ GJGameLevel* APLayer::createLevelShell(const Level& ap) {
 	// create lightweight shell, no auto strings
 	auto level = LevelTools::getLevel(levelID, true);
 
+	//needs to be set early to ensure only archipelago levelCells are modified
+	level->m_creatorName = fmt::format("Level {}", APConnection::IDtoLvl[levelID] + 1);
+
+	//don't get data for levels that aren't unlocked
+	if (ap.ap_progress == 0)
+	{
+		return level;
+	}
+
 	// REQUIRED UI FIELDS
 	level->m_levelID = levelID;
 	level->m_levelName = ap.name;
 	level->m_levelType = GJLevelType::SearchResult;
-	level->m_creatorName = fmt::format("Level {}", APConnection::IDtoLvl[levelID] + 1);
 	level->m_isUploaded = true;
 	level->m_isVerified = true;
 

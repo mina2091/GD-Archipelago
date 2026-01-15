@@ -253,7 +253,7 @@ void APLogInLayer::checkInit(float dt) {
         this->unschedule(schedule_selector(APLogInLayer::checkInit));
 
         // perform cleanup so a later reconnect is possible
-        APConnection::resetAfterTimeout();
+        APConnection::resetData();
 
         // show alert on main thread (we are already on main thread because scheduler runs there)
         FLAlertLayer::create(

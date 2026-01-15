@@ -30,6 +30,7 @@ class $modify(menu, CreatorLayer) {
 	}
 
 	void onAPButtonClick(CCObject * btn) {
+		APConnection::resetData();
 		APLogInLayer::create()->show();
 	}
 

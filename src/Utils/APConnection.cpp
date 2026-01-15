@@ -528,7 +528,7 @@ bool APConnection::isInitTimedOut() {
     return g_init_timedout.load();
 }
 
-void APConnection::resetAfterTimeout() {
+void APConnection::resetData() {
     geode::log::info("APConnection::resetAfterTimeout: cleaning up after timeout...");
 
     // try to stop the client if possible

@@ -25,7 +25,19 @@ class $modify(APLevelCell, LevelCell) {
         if (!difficultyContainer)
             return;
 
+        //if level is locked remove all sprites from cell and add a lock icon
+        if (level->m_levelID == 1)
+        {
+            m_mainLayer->removeAllChildren();
 
+            auto lockIcon = CCSprite::createWithSpriteFrameName("GJ_lock_001.png");
+            lockIcon->setPosition({ 180, 34 });
+            lockIcon->setAnchorPoint({ 0.5f, 0 });
+            lockIcon->setID("lock-icon");
+            m_mainLayer->addChild(lockIcon);
+
+            return;
+        }
         // Remove old AP sprite if cell reused
         difficultyContainer->removeChildByID("ap-difficulty-sprite");
 
