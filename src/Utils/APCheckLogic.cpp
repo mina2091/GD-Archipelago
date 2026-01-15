@@ -100,8 +100,7 @@ class $modify (PlayLayer){
 
 			if (nextPlayerCheckPercentage == lvl_progress && lvl_progress < 100) {
 				this->PlayLayer::destroyPlayer(m_player1, nullptr);
-				//idk if we need to pause the game so ill just comment it out for now
-				//this->PlayLayer::pauseGame(false);
+				this->PlayLayer::pauseGame(false);
 				return;
 			}
 
