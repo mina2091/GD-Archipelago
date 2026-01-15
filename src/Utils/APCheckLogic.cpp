@@ -20,7 +20,7 @@ extern bool logged_in;
 
 class $modify (PlayLayer){
 
-	//TODO: Check logic not working yet (im too fried for ts rn)
+	//TODO: fix issue: only works when updating the game by logging in again
 	virtual void postUpdate(float p0) {
 		PlayLayer::postUpdate(p0);
 
@@ -32,7 +32,18 @@ class $modify (PlayLayer){
 		int ap_id = APConnection::IDtoLvl[m_level->m_levelID];
 		int player_progress = APConnection::getCurrentProgressFromID(ap_id);
 		int lvl_progress = APConnection::getProgressFromID(ap_id);
+		//TODO: remove logs in postUpdate() when testing is over so we don't flood the logs with text
 		geode::log::info("Progress Level {} = {} % --- Player Progress: {} %", ap_id+1, lvl_progress, player_progress);
+
+		if (player_progress == lvl_progress || lvl_progress == 0){
+			return;
+		}
+
+		int nextPlayerCheckPercentage = player_progress + APConnection::getPPC();
+
+		if (nextPlayerCheckPercentage > 100){
+			return;
+		}
 
 		auto lvl = APConnection::IDtoLvl.find(m_level->m_levelID);
 			if (lvl != APConnection::IDtoLvl.end()) {
@@ -43,33 +54,22 @@ class $modify (PlayLayer){
 				return;
 			}
 
-		geode::log::info("{}", this->getCurrentPercent());
+		geode::log::info("{}", this->getCurrentPercentInt());
 
-		if (this->getCurrentPercent() > lvl_progress
-			&& player_progress != lvl_progress
-			&& lvl_progress != 0
+		//when reaching a check
+		if (this->getCurrentPercentInt() >= nextPlayerCheckPercentage
 			&& this->isGameplayActive()
 			|| (this->m_levelEndAnimationStarted && !APConnection::getIsFinished(ap_id))
 			) {
 
-			/*
-			//it doesnt work for 100% yet, no idea why
-			AchievementNotifier::sharedState()->notifyAchievement(
-				"Check Sent!",
-				fmt::format("Check has been sent! ({}%)", lvl_progress).c_str(),
-				"../img/archi.png"_spr,
-				false
-			);
-			*/
-
-			auto msg = fmt::format("Check has been sent!\n\n Level {}, {}%", ap_id+1, lvl_progress);
+			auto msg = fmt::format("Check has been sent!\n\n Level {}, {}%", ap_id+1, nextPlayerCheckPercentage);
 			APCheckLayer::show(msg);
 
 
 			int loc = 0x100 + (level - 1) * 100 + (lvl_progress/5)-1;
 			//256 - 0 * 100 + 1/1  = 256
 
-			geode::log::info("Level {}, {}% complete.", level, lvl_progress);
+			geode::log::info("Level {}, {}% complete.", level, nextPlayerCheckPercentage);
 			geode::log::info("Sending Item ID: {}", loc);
 			geode::log::info("Level ID: {}", m_level->m_levelID);
 			AP_SendItem(loc);
@@ -92,28 +92,20 @@ class $modify (PlayLayer){
 				geode::log::info("Location checked: {}", loc);
 			});
 
-			/*
-			if (this->getCurrentPercent() == 100) {
-				progress = 101;	//out of the loop
-			}
-			*/
-
-
-
 			if (this->m_levelEndAnimationStarted) {
 				APConnection::setIsFinished(ap_id);
 				APConnection::addToCurrentFinishedLevels();
 				APConnection::checkForGoalAmount();
 			}
 
-			APConnection::setCurrentProgress(ap_id, player_progress + APConnection::getPPC());
-
-			if (player_progress != lvl_progress && lvl_progress < 100) {
+			if (nextPlayerCheckPercentage == lvl_progress && lvl_progress < 100) {
 				this->PlayLayer::destroyPlayer(m_player1, nullptr);
-				this->PlayLayer::pauseGame(false);
+				//idk if we need to pause the game so ill just comment it out for now
+				//this->PlayLayer::pauseGame(false);
 				return;
 			}
 
+			APConnection::setCurrentProgress(ap_id, nextPlayerCheckPercentage);
 			APConnection::setLevelProgress(ap_id, lvl_progress + APConnection::getPPC());
 
 		}
