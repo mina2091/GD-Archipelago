@@ -11,13 +11,11 @@ class $modify(APLevelInfoLayer, LevelInfoLayer) {
     public:
     void onBack(CCObject* sender) {
         LevelInfoLayer::onBack(sender);
-        LevelInfoClosedEvent().post();
 
         auto ap = APLayer::get();
 
         if (!ap) return;
 
         ap->updateAPCells(0.0f);
-
     }
 };

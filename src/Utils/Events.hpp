@@ -3,8 +3,7 @@
 
 using namespace geode::prelude;
 
-struct LevelInfoClosedEvent : public Event {};
-
-struct LevelInfoClosedFilter : public EventFilter<LevelInfoClosedEvent> {
-    using EventFilter::EventFilter;
+struct LevelInfoClosedEvent : public GlobalEvent<LevelInfoClosedEvent, bool(int value), std::string>
+{
+    using GlobalEvent = GlobalEvent;
 };

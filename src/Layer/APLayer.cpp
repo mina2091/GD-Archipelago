@@ -138,6 +138,7 @@ bool APLayer::init() {
     return true;
 }
 
+
 //Updates the APLevelCells
 //Used to update the Progressbars
 void APLayer::updateAPCells(float f)
