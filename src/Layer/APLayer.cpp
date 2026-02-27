@@ -7,7 +7,6 @@
 #include <Geode/cocos/cocoa/CCArray.h>
 #include <Geode/binding/GJGameLevel.hpp>
 
-#include "../Utils/Events.hpp"
 #include "APProgressLayer.hpp"
 #include "APLayer.hpp"
 
