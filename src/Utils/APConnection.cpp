@@ -25,7 +25,7 @@ auto ap_checks_per_level = 0;
 auto ap_starting_level_amount = 0;
 auto ap_percentage_for_check = 20; //test value for now
 
-int percentagesGetFromInitArray[100];  //we have to change that
+int percentagesGetFromInitArray[100];  //we have to change that - What does it do? Do we save the percentage for every Level in a specific slot?
 int playerProgressPerLevelArray[100];
 int currentFinishedLevels = 0;
 
@@ -42,14 +42,24 @@ namespace {
     std::atomic<bool> g_init_timedout{false};
 }
 
+//Clear Item Callback
 void APConnection::clearItemCallback() {
     geode::log::info("APConnection::clearItemCallback");
 }
 
+/**
+ * Gets the amount of levels to play, as defined in the .yaml
+ * @return amount fo levels
+ */
 int APConnection::getLevelAmount(){
     return ap_level_amount;
 }
 
+/**
+ * Updates level progress for the specified level
+ * @param id ID in AP format (like 356)
+ * @param notify notify (not used)
+ */
 void APConnection::itemReceivedCallback(int64_t id, bool notify){
     geode::log::info("Received Item ID: {}", id);
 
@@ -63,10 +73,13 @@ void APConnection::itemReceivedCallback(int64_t id, bool notify){
     //[GD-Archipelago]: APConnection::itemReceivedCallback, 356 - Level 1
     //[GD-Archipelago]: APConnection::itemReceivedCallback, 456 - Level 2
 
+    //Transforms the id given in AP format to an usable ID
     id = (id - 56)/100-3;
 	// (356 - 56) / 100 - 3 = 0
 	// (456 - 56) / 100 - 3 = 1
 
+
+    //Updates the Percentage in our variables
     for (int i = 0; i < 100; i++) {
         if (i == id) {
             percentagesGetFromInitArray[i] += 1;
@@ -75,6 +88,7 @@ void APConnection::itemReceivedCallback(int64_t id, bool notify){
         }
     }
 
+    //TODO Check if this is realy the right way @Gary
     setLevelProgress(id, randomLevels[id].ap_progress);
 }
 /*
@@ -84,6 +98,10 @@ void APConnection::itemReceivedCallback(int64_t id, bool notify){
 }
 */
 
+/**
+ * Updates player progress on LocationCheck Callback
+ * @param id ID of Level in AP format
+ */
 void APConnection::locationCheckedCallback(int64_t id) {
     geode::log::info("Received Location Check ID: {}", id);
 
@@ -96,7 +114,7 @@ void APConnection::locationCheckedCallback(int64_t id) {
     auto lvl_player_progress = id/100-2;
 
     for (int i = 0; i < 100; i++) {
-        if (i == lvl_player_progress) {
+        if (i == lvl_player_progress) { //Warum immer mit ner Schleife, anstatt das man direkt lvl_player_progress nimmt?
             playerProgressPerLevelArray[i] += 1;
             geode::log::info("Added Player Progression to Level {}", lvl_player_progress+1);
             return;
@@ -111,43 +129,75 @@ void APConnection::locationCheckedCallback(int64_t id) {
 }
 
 //convert into local variables
+
+/**
+ * Sets the minimum Difficulty
+ * @param i difficulty level
+ */
 void APConnection::setMinDiff(int i){
     ap_min_diff = i;
     g_min_received.store(true);
     geode::log::info("Min Diff: {}", i);
 }
 
+/**
+ * Sets the maximum difficulty
+ * @param i difficulty level
+ */
 void APConnection::setMaxDiff(int i){
     ap_max_diff = i;
     g_max_received.store(true);
     geode::log::info("Max Diff: {}", i);
 }
 
+/**
+ * Sets amount of total Levels
+ * @param i amount fo levels
+ */
 void APConnection::setLevelAmount(int i){
     ap_level_amount = i;
 	geode::log::info("Level Amount: {}", i);
 }
 
+/**
+ * Sets amount of Levels to fully complete
+ * @param i amount of levels
+ */
 void APConnection::setGoalAmount(int i){
     ap_goal_amount = i;
 	geode::log::info("Goal Amount: {}", i);
 }
 
+/**
+ * Sets mount of checks per level
+ * @param i amount of checks (1 = only at 100%, 2 = every 50%, ...)
+ */
 void APConnection::setChecksPerLevel(int i){
     ap_checks_per_level = i;
     ap_percentage_for_check = 100 / i;
 	geode::log::info("Checks Per Level: {}, Percentage per Check: {}%", i, ap_percentage_for_check);
 }
 
+/**
+ * Gets percentage for checks
+ * @return percentage for checks
+ */
 int APConnection::getPPC(){
    return ap_percentage_for_check;
 }
 
+/**
+ * Sets amount of levels which are available from the start
+ * @param i amoun fo levels
+ */
 void APConnection::setStartingLevelAmount(int i){
     ap_starting_level_amount = i;
 	geode::log::info("Starting Level Amount: {}", i);
 }
 
+/**
+ * Clears all tables with percentages
+ */
 void APConnection::clearTable(){
     //clear previous loaded content for percentages
     std::fill(
@@ -164,7 +214,9 @@ void APConnection::clearTable(){
     geode::log::info("Tables cleared");
 }
 
-//takes slot_fill_data from world and converts into local variables
+/**
+ * takes slot_fill_data from world and converts into local variables
+ */
 void APConnection::worldInputInit(){
     AP_RegisterSlotDataIntCallback("min_diff", &setMinDiff);
     AP_RegisterSlotDataIntCallback("max_diff", &setMaxDiff);
@@ -174,12 +226,19 @@ void APConnection::worldInputInit(){
     AP_RegisterSlotDataIntCallback("starting_level_amount", &setStartingLevelAmount);
 }
 
+/**
+ * Picks a specific amount of random levels of all the available levels in allLevels
+ * @param allLevels volume of all levels
+ * @return random levels
+ */
 std::vector<Level> APConnection::pickRandomLevels(const std::vector<Level>& allLevels) {
 
+    //Error handling
     if (ap_level_amount > allLevels.size()) {
         throw std::runtime_error("Requested more levels than available");
     }
 
+    //Initializing variables
     std::vector<Level> result;
     result.reserve(ap_level_amount);
 
@@ -192,6 +251,8 @@ std::vector<Level> APConnection::pickRandomLevels(const std::vector<Level>& allL
 
     std::size_t i = 0;
     std::size_t validAmount = 0;
+
+    //adds levels out of the shuffeld levels to the output vector.
     while (validAmount < static_cast<std::size_t>(ap_level_amount) && i < indices.size()) {
         const auto &cand = allLevels[indices[i]];
         if (!cand.isPlatformer
@@ -222,20 +283,35 @@ std::vector<Level> APConnection::pickRandomLevels(const std::vector<Level>& allL
     return result;
 }
 
+/**
+ * Gets the isFinished status of the given level
+ * @param ap_id level id in normal id format (not AP format)
+ * @return if is finished
+ */
 bool APConnection::getIsFinished(int ap_id){
     return APConnection::randomLevels[ap_id].isFinished;
 }
 
+/**
+ * Sets isFinished status for the given level
+ * @param ap_id level id in normal id format (not AP format)
+ */
 void APConnection::setIsFinished(int ap_id){
     APConnection::randomLevels[ap_id].isFinished = true;
 }
 
+/**
+ * Adds one to finishedLevels (count)
+ */
 void APConnection::addToCurrentFinishedLevels(){
     currentFinishedLevels += 1;
     geode::log::info("added 1 to finishedlevels, now: {}", currentFinishedLevels);
 	geode::log::info("levels needed to finish: {}", ap_goal_amount);    //TODO: goal amount still sometimes takes hard-coded value
 }
 
+/**
+ * Checks if finished levels (count) = goal amount
+ */
 void APConnection::checkForGoalAmount(){
     if (currentFinishedLevels == ap_goal_amount){
         geode::log::info("finished!");
@@ -244,6 +320,11 @@ void APConnection::checkForGoalAmount(){
 }
 
 //TODO: fix order of name, id and entry (currently reversed)
+/**
+ * Loads saved levels for the current AP Server
+ * @param path path of the save file
+ * @return all Levels for this AP Server
+ */
 std::vector<Level> APConnection::loadLevels(const std::string& path) {
     std::ifstream file(path);
     if (!file) {
@@ -373,6 +454,8 @@ std::vector<Level> APConnection::loadLevels(const std::string& path) {
             geode::log::info("levels.json: invalid 'platformer' field, defaulting to false", e.what());
         }
 
+        //After a LOT of error handling: put the level into the vector
+
         levels.push_back(Level{
             percentagesGetFromInitArray[counter++] * ap_percentage_for_check,
             name,
@@ -391,6 +474,11 @@ std::vector<Level> APConnection::loadLevels(const std::string& path) {
     return levels;
 }
 
+/**
+ * Saves levels to file
+ * @param levels levels to save
+ * @param path path of the save file
+ */
 void APConnection::saveLevels(const std::vector<Level>& levels, const std::string& path) {
     json j = json::array();
 
@@ -411,35 +499,61 @@ void APConnection::saveLevels(const std::vector<Level>& levels, const std::strin
     out << j.dump(4); // pretty print
 }
 
+/**
+ * Sets level progress for a level
+ * @param ap_id level id (normal format)
+ * @param prog level progress (percent)
+ */
 void APConnection::setLevelProgress(int64_t ap_id, int prog) {
     randomLevels[ap_id].ap_progress = prog;
     geode::log::info("Set Level {} progress to {}%", ap_id + 1, prog);
     return;
 }
 
+/**
+ * Gets level progress from an ID (normal id)
+ * @param ap_id level id (normal)
+ * @return progress percentage
+ */
 int64_t APConnection::getProgressFromID(int64_t ap_id) {
     return randomLevels[ap_id].ap_progress;
 }
 
+/**
+ * Sets current progress (player progress)
+ * @param ap_id level id (normal)
+ * @param prog progress (percent)
+ */
 void APConnection::setCurrentProgress(int64_t ap_id, int prog){
     randomLevels[ap_id].playerProgress = prog;
     geode::log::info("Set Level {} player progress to {}%", ap_id + 1, prog);
 }
 
+/**
+ * Get player progress via ID (normal)
+ * @param ap_id level id (normal)
+ * @return player progress (percent)
+ */
 int64_t APConnection::getCurrentProgressFromID(int64_t ap_id){
     return randomLevels[ap_id].playerProgress;
 }
 
+/**
+ * Creates fresh instances of lvlToID and IDtoLvl
+ * @param levels levels to map
+ */
 void APConnection::buildIDTable(const std::vector<Level>& levels){
     lvlToID.clear();
     IDtoLvl.clear();
 
     for (size_t i = 0; i < levels.size(); ++i){
-        const auto &levelIdStr = levels[i].id;
+        const auto &levelIdStr = levels[i].id; //Get ID to work with
+
         if (levelIdStr.empty()) {
             geode::log::info("buildIDTable: skipping level {} because id is empty", i + 1);
             continue;
         }
+
         try {
             int64_t id = std::stoll(levelIdStr);
             lvlToID.push_back(id);
@@ -458,6 +572,9 @@ void APConnection::buildIDTable(const std::vector<Level>& levels){
     // IDToLvl[73263] = 2
 }
 
+/**
+ * Initializes and loads all data on connection to server
+ */
 void APConnection::initOnConnect() {
     // run registration on a background thread and wait for min/max slot data before registering
     g_init_done.store(false);
@@ -520,14 +637,25 @@ void APConnection::initOnConnect() {
 
 }
 
+/**
+ * Checks if init of initOnConnect is completed
+ * @return is completed
+ */
 bool APConnection::isInitComplete() {
     return g_init_done.load();
 }
 
+/**
+ * Checks if init of initOnConnect is timed out
+ * @return is timed out
+ */
 bool APConnection::isInitTimedOut() {
     return g_init_timedout.load();
 }
 
+/**
+ * Resets all Data that is not saved
+ */
 void APConnection::resetData() {
     geode::log::info("APConnection::resetAfterTimeout: cleaning up after timeout...");
 
