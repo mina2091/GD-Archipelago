@@ -23,17 +23,28 @@ extern bool logged_in;
 //List of the displayed levels as CostumListView to access them
 CustomListView* m_listView = nullptr;
 
-
+/**
+ * Gets current active instance of APLayer
+ * @return current instance
+ */
 APLayer* APLayer::get() {
 	return s_instance;
 }
 
+/**
+ * Sets current instance of APLayer
+ * @param layer current instance
+ */
 void APLayer::set(APLayer* layer) {
 	s_instance = layer;
 }
 
 
 //Initializes the overview page
+/**
+ * Initializes the overview page
+ * @return if initializing was successfully
+ */
 bool APLayer::init() {
 
     if (!CCLayer::init())
@@ -127,6 +138,7 @@ bool APLayer::init() {
 	logOutButtonLocation->setID("log-out-button-buttom-left");
 	this->addChild(logOutButtonLocation);
 
+	//level cells setting and updating
 	this->scheduleOnce(
 	schedule_selector(APLayer::updateAPCells),
 	1.0f
@@ -140,26 +152,36 @@ bool APLayer::init() {
 
 //Updates the APLevelCells
 //Used to update the Progressbars
+/**
+ * Updates all levelCells
+ * @param f factor
+ */
 void APLayer::updateAPCells(float f)
 {
-
 	if (!m_listView) return;
 
+	//Get tableVie
 	auto table = m_listView->m_tableView;
 	if (!table) return;
 
+	//Gets contentLayer
 	auto content = table->m_contentLayer;
 	if (!content) return;
 
+	//Iterates all levelCells
 	for (auto node : CCArrayExt<CCNode*>(content->getChildren())) {
 
-		// 1️ Erst Originalklasse
+		// Trys to parse levelCell
 		auto levelCell = static_cast<APLevelCell*>(node);
 		if (!levelCell) continue;
 
+		//Get m_level
 		auto level = levelCell->m_level;
 		if (!level) continue;
+		//sets default level
 		Level apLevel = APConnection::randomLevels[0];
+
+		//Iterates all levels and sets right level to apLevel
 		for (Level l : APConnection::randomLevels)
 		{
 			if (l.id == std::to_string(level->m_levelID.value()))
@@ -168,6 +190,7 @@ void APLayer::updateAPCells(float f)
 				break;
 			}
 		}
+		//Sets Progressbars based on found level for this LevelCell
 		try
 		{
 			levelCell->setProgressbarPlayed(apLevel.playerProgress);
@@ -179,7 +202,9 @@ void APLayer::updateAPCells(float f)
 	}
 }
 
-//Shows the layer
+/**
+ * Adds APLayer to a new scene
+ */
 void APLayer::show(){
 	//Create a new scene and add this layer to it
     auto scene = CCScene::create();
@@ -202,7 +227,10 @@ void APLayer::show(){
 
 }
 
-//Pops the scene with transition
+/**
+ * Pops the scene on Buttonclick
+ * @param btn button to click
+ */
 void APLayer::onButtonClickPop(CCObject* btn) {
     // Back to last scene
     auto director = CCDirector::sharedDirector();
@@ -211,7 +239,10 @@ void APLayer::onButtonClickPop(CCObject* btn) {
     );
 }
 
-//Logs the Player out and pops the scene
+/**
+ * Logs Player out and pops the scene
+ * @param btn button to click
+ */
 void APLayer::onLogOutButtonClick(CCObject* btn) {
 	logged_in = false;
 	geode::log::info("Logged out!");
@@ -222,12 +253,19 @@ void APLayer::onLogOutButtonClick(CCObject* btn) {
 	);
 }
 
-//Shows the stats layer
+/**
+ * Shows stats layer
+ * @param btn button to click
+ */
 void APLayer::openStatsLayer(CCObject* btn) {
     APProgressLayer::create()->show();
 }
 
-//convert level structs to GJGameLevel shells to show in ListView
+/**
+ * convert level structs to GJGameLevel shells to show in ListView
+ * @param ap Level
+ * @return new Level for ap
+ */
 GJGameLevel* APLayer::createLevelShell(const Level& ap) {
 	int levelID = std::stoi(ap.id);
 
@@ -290,7 +328,7 @@ GJGameLevel* APLayer::createLevelShell(const Level& ap) {
 	level->m_autoLevel = false;
 	level->m_rateFeature = true;
 	//Demon difficulty icon
-	if (ap.difficulty_id > 5)
+	if (ap.difficulty_id > 5) //If level = demon
 	{
 		level->m_demon = true;
 		//Demon difficulty(don't ask why geode does this): Easy = 5, Medium = 3, Hard = 1, Insane = 2, Extreme = 4
@@ -321,7 +359,7 @@ GJGameLevel* APLayer::createLevelShell(const Level& ap) {
 			break;
 		}
 	}
-	else
+	else //If level not demon
 	{
 		level->m_demon = false;
 		switch (ap.difficulty_id)

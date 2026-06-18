@@ -9,7 +9,10 @@ using namespace geode::prelude;
 
 class $modify(APLevelCell, LevelCell) {
 
-    //Creates APLevelCell from GJGameLevel
+    /**
+     *Creates APLevelCell from GJGameLevel
+     * @param level level to create from
+     */
     void loadFromLevel(GJGameLevel* level) {
         LevelCell::loadFromLevel(level);
 
@@ -138,7 +141,10 @@ class $modify(APLevelCell, LevelCell) {
         m_mainLayer->addChild(progressBarPlayed);
     }
 
-    //Sets the state of the played content Progressbar
+    /**
+     * Sets the state of the played content Progressbar
+     * @param f value to set it to
+     */
     void setProgressbarPlayed(float f)
     {
         ProgressBar* progBar = typeinfo_cast<ProgressBar*>(m_mainLayer->getChildByID("ap-progress-bar-played"));
@@ -150,7 +156,10 @@ class $modify(APLevelCell, LevelCell) {
         progBar->updateProgress(f);
     }
 
-    //Sets the state of the unlocked content Progressbar
+    /**
+     * Sets the state of the unlocked content Progressbar
+     * @param f value to set it to
+     */
     void setProgressbarUnlocked(float f)
     {
         ProgressBar* progBar = typeinfo_cast<ProgressBar*>(m_mainLayer->getChildByID("ap-progress-bar-unlocked"));
@@ -161,7 +170,11 @@ class $modify(APLevelCell, LevelCell) {
         progBar->updateProgress(f);
     }
 
-    //Gets the right picture for the current difficulty
+    /**
+     * Gets the right picture for the current difficulty
+     * @param level level to get difficulty
+     * @return png name for difficulty
+     */
     static const char* getDifficultyFrame(GJGameLevel* level) {
         if (level->m_demon)
         {

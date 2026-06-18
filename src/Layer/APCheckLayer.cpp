@@ -1,5 +1,9 @@
 #include "APCheckLayer.hpp"
 
+/**
+ * Shows the Layer
+ * @param msg message for Label
+ */
 void APCheckLayer::show(std::string const& msg) {
     auto scene = CCDirector::sharedDirector()->getRunningScene();
     if (!scene) return;
@@ -8,6 +12,11 @@ void APCheckLayer::show(std::string const& msg) {
     scene->addChild(layer, 999);
 }
 
+/**
+ *  creates a bew instance of check layer
+ * @param msg message for label
+ * @return new APCheckLayer
+ */
 APCheckLayer* APCheckLayer::create(std::string const& msg) {
     auto ret = new APCheckLayer();
     if (ret && ret->init(msg)) {
@@ -18,6 +27,11 @@ APCheckLayer* APCheckLayer::create(std::string const& msg) {
     return nullptr;
 }
 
+/**
+ * Inits the check layer
+ * @param msg Message for Label
+ * @return if is initialized
+ */
 bool APCheckLayer::init(std::string const& msg) {
     if (!CCLayer::init())
         return false;

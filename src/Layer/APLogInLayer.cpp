@@ -25,6 +25,10 @@ using namespace geode::prelude;
 
 extern bool logged_in;
 
+/**
+ *Init ApLoginLayer
+ * @return if initialized
+ */
 bool APLogInLayer::init() {
     if (!CCLayer::init())
         return false;
@@ -154,7 +158,7 @@ bool APLogInLayer::init() {
 
     this->addChild(hostTextLocation);
 
-    //TEMP
+    //TEMP TODO
     auto tempConnectButton = CCMenuItemSpriteExtra::create(
         CCSprite::create("gd-logo.png"_spr),
         this,
@@ -172,14 +176,17 @@ bool APLogInLayer::init() {
     return true;
 }
 
+/**
+ * Shows login layer
+ */
 void APLogInLayer::show() {
-    // Neue Szene erstellen und dieses Layer hinzufügen
+    // create new szene and add this layer
     auto scene = CCScene::create();
     scene->addChild(this);
 
     auto director = CCDirector::sharedDirector();
     if (director->getRunningScene()) {
-        // Ersetze die aktuelle Szene durch die neue
+        // Replace current szene with the new one
         director->pushScene(
             CCTransitionFade::create(
             .5f,
@@ -187,11 +194,15 @@ void APLogInLayer::show() {
         );
     }
     else {
-        // Falls keine Szene läuft, starte mit der neuen
+        // In case no szene is runs, start a new one
         director->runWithScene(scene);
     }
 }
 
+/**
+ * Back button click event
+ * @param btn button to click
+ */
 void APLogInLayer::onBackButtonClick(CCObject* btn) {
 	auto director = CCDirector::sharedDirector();
     director->popSceneWithTransition(
@@ -199,6 +210,10 @@ void APLogInLayer::onBackButtonClick(CCObject* btn) {
     );
 }
 
+/**
+ * connect button click event
+ * @param btn button to click
+ */
 void APLogInLayer::onClickConnectButton(CCObject* btn) {
 
     std::string portStr = this->inputTxtPort->getString();
@@ -239,6 +254,10 @@ void APLogInLayer::onClickConnectButton(CCObject* btn) {
     this->schedule(schedule_selector(APLogInLayer::checkInit), 0.1f);
 }
 
+/**
+ * Checks if init is successful
+ * @param dt unused parameter
+ */
 void APLogInLayer::checkInit(float dt) {
     // first, success
     if (APConnection::isInitComplete()) {
@@ -265,6 +284,10 @@ void APLogInLayer::checkInit(float dt) {
     }
 }
 
+/**
+ * button click event archipilago host button
+ * @param btn button to click
+ */
 void APLogInLayer::onClickArchiHostButton(CCObject* btn) {
     auto toggler = static_cast<CCMenuItemToggler*>(btn);
     if (!toggler->isToggled()) {
@@ -274,7 +297,7 @@ void APLogInLayer::onClickArchiHostButton(CCObject* btn) {
     }
 }
 
-//TEMP
+//TEMP TODO
 void APLogInLayer::onClickConnectButtonTemp(CCObject* btn) {
 
     std::string portStr = this->inputTxtPort->getString();

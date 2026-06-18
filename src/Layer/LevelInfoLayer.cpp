@@ -8,6 +8,11 @@ using namespace geode::prelude;
 
 class $modify(APLevelInfoLayer, LevelInfoLayer) {
     public:
+    /**
+     * on back action in LevelInfoLayer
+     * @param sender level info layer
+     */
+
     void onBack(CCObject* sender) {
         LevelInfoLayer::onBack(sender);
 
